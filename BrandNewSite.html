@@ -1,0 +1,213 @@
+<html>
+	<head> 
+		<title>Complete Webpage</title>
+		
+			<style type="text/css">
+				.videoclass{
+					border-radius: 50px;
+					border-style: ridge;
+					border-width: 35px;
+					border-color: gray;
+					background-color: pink;
+					width: 565px;
+				}
+				
+				IFrame{
+					padding: 0px;
+					margin: 0px;
+				}
+			</style>
+			
+	</head>
+	
+	
+	<body>
+		<h2>My First Complete Webpage!</h2>
+		
+		
+		<div>
+		<p><b><i>HTML Topics Overview.</i></b></p>
+		<ol start="1">
+		
+			<li>
+				<u>Text Formatting</u>
+				<ul> 
+					<li>newline ("line break"): &lt;br&gt;</li>
+					<li>heading styles: &lt;h1&gt; - &lt;h6&gt;</li>
+					<li><u>underlined</u>: &lt;u&gt; | &lt;ins&gt;</li>
+					<li><del>deleted</del>: &lt;del&gt;</li>
+					<li><i>italic</i>: &lt;i&gt;</li>
+					<li><b>bold</b>: &lt;b&gt;</li>
+					<li><sup>superscripted</sup>: &lt;sup&gt;</li>
+					<li><sub>subscripted</sub>: &lt;sub&gt;</li>
+					<li>create horizontal line: &lt;hr&gt;</li>
+				</ul>
+			</li>
+			
+			<li>
+				<u>Lists</u>
+				<ul>
+					<li>Unordered Lists</li>
+					<li>
+						Ordered Lists
+						<ul>
+							<li>Types of ordered list.</li>
+							<li>Set the starting point of ordered lists.</li>
+							<li>Make the ordered list reversed.</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			
+			<li>
+				<u>Images</u>
+				<ul>
+					<li>&lt;img src="space_girl.jpg" width="1200" height="800" align="right"&gt;</li>
+					<li>Displaying images from local computer.</li>
+					<li>Displaying images from another web page.</li>
+					<li>Setting the image's width and height.</li>
+					<li>Aligning the image to the left or right.</li>
+				</ul>
+			</li>
+			
+			<li>
+				<u>Forms</u>
+				<ul>
+					<li>
+						<b>Text Input.</b><br><br>
+						
+						<hr>
+						&lt;p&gt;Username: &lt;input type="text" <u>value</u>="your username"&gt;&lt;/p&gt; <br><br> produces: <br>
+						<p>Username: <input type="text" value="your username"></p> 
+						<hr>
+						
+						<hr>
+						&lt;p&gt;Username: &lt;input type="text" <u>placeholder</u>="your username"&gt;&lt;/p&gt; <br><br> produces: <br>
+						<p>Username: <input type="text" placeholder="your username"></p>
+						<hr>
+						
+					</li>
+					
+					<li>
+						<b>Checkbox.</b><br><br>
+						
+						&lt;p&gt;Stay logged in: &lt;input type="checkbox"&gt;&lt;/p&gt; <br><br> produces: <br>
+						<p> Stay logged in: <input type="checkbox"></p> 
+						
+						You can also initialize it as being set by including <b><i>checked</i></b> at the end of the element.
+						
+						
+					</li>
+					
+					<li>
+						<b>Radio Buttons.</b> <br>
+						<hr>
+						<b>
+						&lt;p&gt; Under 18:&lt;input type="radio" <u>name="age"</u> value="u18"&gt;&lt;/p&gt; <br>
+						&lt;p&gt; Over 18:&lt;input type="radio" <u>name="age"</u> value="o18"&gt;&lt;/p&gt; </b><hr><br> produces <br><br>
+						
+						<p> Under 18:<input type="radio" name="age" value="u18"></p>
+						<p> Over 18:<input type="radio" name="age" value="o18"></p>
+						<b><i>NOTE:</i></b> The radio buttons are given the same name in order to link them, to make sure only 1 activates at a time.
+						
+					</li>
+					
+					<li>
+						<b>Select Form.</b> <br>
+						<hr>
+						&lt;p&gt;Favorite food:<br>
+							&lt;select&gt;<br><br>
+				
+								&lt;option&gt;Pizza&lt;/option&gt;<br>
+								&lt;option <b>selected</b>&gt;Ice Cream&lt;/option&gt;<br>
+								&lt;option&gt;Sandwiches&lt;/option&gt;<br><br>
+			
+							&lt;/select&gt;<br>
+						&lt;/p&gt;<br>
+						<hr> produces <br><br>
+						<p>Favorite food: 
+							<select>
+				
+								<option>Pizza</option>
+								<option selected>Ice Cream</option>
+								<option>Sandwiches</option>
+			
+							</select> 
+						</p>
+					</li>
+					
+					
+					
+					<li>
+						<b>A Submit Button.</b><br><br>
+						<b>&lt;p&gt;&lt;input type="submit" value="Click Me!"&gt;&lt;/p&gt; </b><br><br> produces <br>
+						<p><input type="submit" value="Click Me!"></p>
+					</li>
+				
+				</ul>
+			</li>
+			
+			<li> 
+				<u>Tables</u>
+				<ul>
+					<li>Consist of a <b>&lt;thead&gt;</b> and a <b>&lt;tbody&gt;</b> block for columns and then row entries, respectively.
+						Enclosed in an <b>OUTER &lt;table&gt; block.</b> Kinda like the head and body of an HTML block! :) </li>
+					<li>Every single column defintion and row entry is enclosed in a <b>&lt;tr&gt;</b> block.</li>
+					<li>Inside each <b><i>column</i> &lt;tr&gt;</b> block goes 1 element: The column name in a <b>&lt;th&gt;</b> block.
+					<li>Inside each <b><i>row entry </i>&lt;tr&gt;</b> block go a few elements, matching each column, in <b>&lt;td&gt;</b> blocks <i>each</i>.</li>
+					<li><b><i>NOTE:</i></b> td stands for table data. tr stands for table row.</li>
+				</ul>
+			
+			</li>
+			
+			<li>
+				<u>Links</u>
+				<ul>
+					<li>
+						Click on a text or an image to go to a website:<br><br>
+						<b>&lt;p&gt;&lt;a href="http://www.google.com"&gt;&lt;img src="space_girl.jpg"&gt;&lt;/a&gt;&lt;/p&gt;</b> <br><br>
+						<b>NOTE:</b> a stands for Anchor Link.
+					</li>
+					
+					<li>
+						Click on a text or image to jump to another place in the website (eg. top)<br><br>
+						<b>
+						&lt;p id="top"&gt;&lt;a href="http://www.google.com"&gt;&lt;img src="space_girl.jpg"&gt;&lt;/a&gt;&lt;/p&gt; <br>
+						&lt;p&gt;&lt;a href="#top"&gt; Back to top&lt;/a&gt;&lt;/p&gt;
+						</b> <br><br> 
+						<b>NOTE:</b> The paragraph is given an ID. Then the href of a link is given that ID with #. Simple as that. <hr>
+					</li>
+				</ul>
+			</li>
+			
+			<li>
+				<u>Entities</u><br>
+				They're just <b><i>symbols</i></b> that are given a name and a number in order to be displayed on an HTML page, which would otherwise be HTML code itself. <br>
+				For example &amp;lt is &lt;, &amp;gt is &gt; and &amp;amp is &amp;. <hr>
+				
+			</li>
+			
+			<li>
+				<u>IFrames</u><br><br>
+				They're just a way to include content from another website into my website. For example:<br><br>
+				<b>
+				&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/jeI992mvlEY" <br>
+				frameborder="0" allow="accelerometer; autoplay; clipboard-write; <br>
+				encrypted-media; gyroscope;picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt; </b><br><br> produces <br><br>
+				<div class="videoclass">
+					This is a video<br>
+					<iframe width="560" height="315" src="https://www.youtube.com/embed/jeI992mvlEY" 
+					frameborder="0" allow="accelerometer; autoplay; clipboard-write; 
+					encrypted-media; gyroscope;picture-in-picture" allowfullscreen></iframe>
+				</div>
+			</li>
+		
+		
+		</ol>
+		<div>
+	
+	</body>
+
+
+
+</html>
