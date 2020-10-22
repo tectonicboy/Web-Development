@@ -1,0 +1,435 @@
+<html>
+	<head>
+		<title>SliceAndDice Page</title>
+		
+		<!-- Add custom font links -->
+		<link href="https://fonts.googleapis.com/css2?family=Antic&family=Baloo+2&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300&display=swap" rel="stylesheet">
+		
+		<!-- Make page scalable on phone and so that it starts off at the correct size. -->
+		<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=1' >
+		
+		<!-- Bring in the stylesheet -->
+		<link rel="stylesheet" type="text/css" href="slice_dice_styles.css">
+		
+	</head>
+
+	<body>
+		<!-- The in-page title -->
+		<h2 id="title">SpaceGeek</h2>
+		
+		<div id="nav_menu">
+			<a class="nav_link" href="https://www.rmg.co.uk/discover/explore/space-stargazing/space-exploration/mission-launch-dates-2020" target="_blank"><b>Missions</b></a>
+			<p class="whitespaces">&emsp;&emsp;</p>
+			<a class="nav_link" href="https://www.space.com/16095-famous-astronomers.html" target="_blank"><b>Scientists</b></a>
+			<p class="whitespaces">&emsp;&emsp;</p>
+			<a class="nav_link" href="https://stacker.com/stories/1610/space-discoveries-will-blow-your-mind" target="_blank"><b>Discoveries</b></a>
+			<p class="whitespaces">&emsp;&emsp;</p>
+			<a class="nav_link" href="https://www.pinterest.co.uk/spacewatcher201/space-art/" target="_blank"><b>Art</b></a>
+			<p class="whitespaces">&emsp;&emsp;</p>
+			<a class="nav_link" href="https://www.accuweather.com/en/space-news/10-astronomy-events-you-dont-want-to-miss-in-2020/649605" target="_blank"><b>Events</b></a>
+		</div>
+		
+		<!-- Carousel images, planet names, descriptions and "find out more" buttons -->
+		<div id="container">
+			<div id="carousel">
+				<div id="pic1" class="pic_part">
+					<img src="https://wallpaperaccess.com/full/19603.jpg" class="pic">
+					<p class="planet_title">Earth</p>
+					<p class="planet_description">
+						The only planet we know of that harbors life, which began in the oceans. The Earth has a powerful magnetic field, caused by
+						the elements its core is made out of. Thanks to it, we are protected from deadly Sun phenomena, such as solar winds.
+						It is the only planet in our solar system that isn't named after a god.
+					</p>
+					<a href="https://space-facts.com/earth/" class="learn_more_btn" target="_blank"><b>Learn more</b></a>
+				</div>
+				<div id="pic2" class="pic_part">
+					<img src="https://i.pinimg.com/originals/e0/35/90/e035900f2cc9e01f72f6066017339bf2.jpg" class="pic">
+					<p class="planet_title">Mars</p>
+					<p class="planet_description">
+						Mars is home to the tallest mountain in our solar system - a volcano spanning 21km in height and 600km in diameter, making it
+						bigger than some countries. Less than half of humanity's missions to this planet have been successful: only 26 of the 56 total.
+						We have found pieces of it on our own Earth though, which has allowed us to study it before launching space missions to it.
+					</p>
+					<a href="https://space-facts.com/mars/" class="learn_more_btn" target="_blank"><b>Learn more</b></a>
+				</div>
+				<div id="pic3" class="pic_part">
+					<img src="https://cdn.mos.cms.futurecdn.net/QaxMMzj6LUzHxXh8tEpwY7.jpg" class="pic">
+					<p class="planet_title">Venus</p>
+					<p class="planet_description">
+						A day on this planet lasts longer than a year: it takes 243 Earth days to complete a rotation around its axis, while taking only 225
+						Earth days to complete an orbit around the Sun. As the hottest planet in our solar system, its sufrace temperature sits at an 
+						astonishing 462 &deg; Celcius.
+					</p>
+					<a href="https://space-facts.com/venus/" class="learn_more_btn" target="_blank"><b>Learn more</b></a>
+				</div>
+				<div id="pic4" class="pic_part">
+					<img src="https://cdn.hipwallpaper.com/i/48/69/ZkwT1t.jpg" class="pic">
+					<p class="planet_title">Jupiter</p>
+					<p class="planet_description">
+						This gas giant is so massive, it has a storm called "The Great Red Spot" (lower half of picture) which can fit 3 Earth. 
+						It has been raging on for at least 350 years.Although it might not look like it at a first glance, 
+						Juputer does have a ring system, which begins about 92,000km above its cloud tops, and
+						stretches out more than 225,000km from the planet.
+					</p>
+					<a href="https://space-facts.com/jupiter/" class="learn_more_btn" target="_blank"><b>Learn more</b></a>
+				</div>
+				<div id="pic5" class="pic_part">
+					<img src="https://cdn.wallpapersafari.com/44/37/j30Yqk.jpg" class="pic">
+					<p class="planet_title">Saturn</p>
+					<p class="planet_description">
+						The most distant planet that can be seen with the naked eye. It has oval-shaped storms similar to Jupiter's. 
+						Obviously, Saturn has the most extensive (and beautiful) rings of any other planet in our solar system. 
+						They stretch more than 120,000km from the planet, but are unbelievably thin
+						on a space scale: only 20 meters thick. It is the planet with the most moons in the solar system.
+					</p>
+					<a href="https://space-facts.com/saturn/" class="learn_more_btn" target="_blank"><b>Learn more</b></a>
+				</div>
+			</div>
+		</div>
+		
+		
+		<!-- The two arrows to move the carousel to the left or right, from SVG sets of three 2D points -->
+		<svg onclick="myMove(true)" id="right_arrow" class="arrow" width="1.5cm" height="1.5cm">
+			<polyline fill="none" stroke="lime" stroke-width="1.5" points="0,37.5 25,18.75 0,0 "/>
+		</svg>
+		
+		<svg onclick="myMove(false)" id="left_arrow" class="arrow" width="1.5cm" height="1.5cm">
+			<polyline fill="none" stroke="lime" stroke-width="1.5" points="25,37.5 0,18.75 25,0 "/>
+		</svg>
+
+		
+		<!-- Make the little circular indicators from small SVG circles -->
+		<div id="indicator_container">
+			<svg class="indicators_panel" id="indic_1" height="20" width="20">
+				<circle class="indicator" cx="10" cy="10" r="6" 
+				stroke="red" stroke-width="0.8" fill="red">
+			</svg>
+			<svg class="indicators_panel" id="indic_2" height="20" width="20">
+				<circle class="indicator" cx="10" cy="10" r="6" 
+				stroke="white" stroke-width="0.8" fill="white">
+			</svg>
+			<svg class="indicators_panel" id="indic_3" height="20" width="20">
+				<circle class="indicator" cx="10" cy="10" r="6" 
+				stroke="white" stroke-width="0.8" fill="white">
+			</svg>
+			<svg class="indicators_panel" id="indic_4" height="20" width="20">
+				<circle class="indicator" cx="10" cy="10" r="6" 
+				stroke="white" stroke-width="0.8" fill="white">
+			</svg>
+			<svg class="indicators_panel" id="indic_5" height="20" width="20">
+				<circle class="indicator" cx="10" cy="10" r="6" 
+				stroke="white" stroke-width="0.8" fill="white">
+			</svg>
+		</div>
+		
+		<!-- About Section -->
+		<p id="about_space">About Space</p>
+		
+		<svg id="about_line" width="1.5cm" height="1.5cm">
+			<polyline fill="none" stroke="rgb(2, 189, 52)" stroke-width="1.1" points="5,10.5 25,10.5 "/>
+		</svg>
+		
+		<p id="small_about_space">
+			<b>Space has been the subject of study for millenia. Find out and learn more below.</b>
+		</p>
+	
+		<!--Icon Segments in the About Section -->
+		<div class="icon_section">
+			<img class="icon_img active" src="blackhole.png" width="100" height="100">
+			<p class="small_icon_heading"><b>Black Holes</b></p>
+			<p class="small_icon_description"><b>
+				Gigantic objects that we can't see directly, since not even light can escape them. 
+				We study them by observing their surroundings. For example, a star that's
+				close enough to a black hole can be seen being ripped apart.
+			</b></p>
+		</div>
+		
+		<div class="icon_section">
+			<img class="icon_img" src="UFO.png" width="100" height="100">
+			<p class="small_icon_heading"><b>Aliens</b></p>
+			<p class="small_icon_description"><b>
+				There is a paradox in the astronomy world: We have estimated that there are
+				millions upon millions of stars, each with its planets around it, just like our Sun. Why haven't
+				we found life on a single one yet?
+			</b></p>
+		</div>
+		
+		<div class="icon_section">
+			<img class="icon_img" src="quasar.png" width="100" height="100">
+			<p class="small_icon_heading"><b>Quasars</b></p>
+			<p class="small_icon_description"><b>
+				An extremely luminous active galactic nucleus, in which a supermassive black hole with mass ranging 
+				from millions to billions of times the mass of the Sun is surrounded by a gaseous accretion disk.
+			</b></p>
+		</div>
+		
+		<div class="icon_section">
+			<img class="icon_img" src="sattelite.png" width="100" height="100">
+			<p class="small_icon_heading"><b>Spacecraft</b></p>
+			<p class="small_icon_description"><b>
+				The most distant human-made object from us is Voyager 1. It is over 13 billion miles away from Earth.
+				It was launched in 1977, along with its twin, Voyager 2. Both of them flew by Jupiter and Saturn.
+			</b></p>
+		</div>
+		<div onclick="learnMore()" id="icon_section_learnmore_btn">
+			Learn More
+		</div>
+		
+		
+		<!-- Two bottom sections -->
+		<div class="bottom_div">
+			<img src="camera.png" class="bottom_img" height="300" width="300"> 
+			
+			<div class="internal_bottom_div">
+				<h1 class="bottom_header" id="bottom_header_1">Observations</h1>
+				<p class="internal_bottom_p" id="bottom_p_1"><b>
+					Observations of space include by means of small devices like cameras, 
+					to bigger telescopes, to even bigger "scientific instruments" like the Hubble Telescope.
+				</b></p>
+				<a href="https://www.nasa.gov/mission_pages/hubble/multimedia/index.html"
+					id="bottom_btn_1" class="learn_more_btn" target="_blank"><b>Learn more</b></a>
+			</div>
+			
+		</div>
+		<div class="bottom_div">
+			<div class="internal_bottom_div">
+				<h1 class="bottom_header" id="bottom_header_2">Calculations</h1>
+				<p class="internal_bottom_p" id="bottom_p_2"><b>
+					Did you know one of our solar system planets was discovered by mere mathematical calculations on paper, before it was actually seen?
+				</b></p>
+				<a href="https://coolcosmos.ipac.caltech.edu/ask/146--When-was-Neptune-discovered-#:~:text=Neptune%20was%20the%20first%20planet%20to%20be%20discovered%20by%20using%20mathematics.&text=They%20figured%20out%20not%20only,the%20first%20time%20in%201846."
+					id="bottom_btn_2" class="learn_more_btn" target="_blank"><b>Learn more</b></a>
+			</div>
+			<img id="bottom_img_2" src="laptop.png" class="bottom_img" height="300" width="450">
+		</div>
+		
+		
+		
+		<script type="text/javascript">
+			//Get the magnitude of the carousel animation's motion according to the user's screen resolution.
+			var magnitude_x = Math.floor(screen.width / 15);
+			var remainder_x = screen.width - magnitude_x*15;
+			
+			//Store page components in variables.
+			var pic_parts = document.getElementsByClassName("pic_part");
+			var pics = document.getElementsByClassName("pic");
+			var carousel = document.getElementById("carousel");
+			var container = document.getElementById("container");
+			var little_circles = document.getElementsByClassName("indicator");
+			var indics = document.getElementsByClassName("indicators_panel");
+			var indic_cont = document.getElementById("indicator_container");
+			var left_arr = document.getElementById("left_arrow");
+			var right_arr = document.getElementById("right_arrow");
+			var title = document.getElementById("title");
+			var planet_names = document.getElementsByClassName("planet_title");
+			var planet_descs = document.getElementsByClassName("planet_description");
+			var learn_more_btns = document.getElementsByClassName("learn_more_btn");
+			var nav_menu = document.getElementById("nav_menu");
+			var about_space = document.getElementById("about_space");
+			var small_about_space = document.getElementById("small_about_space");
+			var about_line = document.getElementById("about_line");
+			var icon_sections = document.getElementsByClassName("icon_section");
+			var icon_section_learnmore_btn = document.getElementById("icon_section_learnmore_btn");
+			var icon_images = document.getElementsByClassName("icon_img");
+			var bottom_divs = document.getElementsByClassName("bottom_div");
+			var bottom_imgs = document.getElementsByClassName("bottom_img");
+			var bottom_p_1 = document.getElementById("bottom_p_1");
+			var bottom_p_2 = document.getElementById("bottom_p_2");
+			var bottom_header_1 = document.getElementById("bottom_header_1");
+			var bottom_header_2 = document.getElementById("bottom_header_2");
+			
+			
+			//Position bottom paragraphs according to user's screen resolution.
+			bottom_p_1.style.left = 0.7*screen.width;
+			bottom_p_1.style.top = 0.15*screen.width;
+			bottom_p_2.style.left = 0.15*screen.width;
+			bottom_p_2.style.top = 200;
+			
+			//Position the bottom headings.
+			bottom_header_1.style.left = 0.7*screen.width;
+			bottom_header_1.style.top = 100;
+			bottom_header_2.style.left = 0.15*screen.width;
+			
+			//Position and style the bottom divs.
+			for(var i = 0; i < bottom_divs.length; i++){
+				bottom_divs[i].style.position = "absolute";
+				bottom_divs[i].style.top = (1.8*screen.height) + (i*600);
+				bottom_divs[i].style.width = screen.width;
+				bottom_divs[i].style.height = "600px";
+				bottom_divs[i].style.margin = "0";
+				bottom_divs[i].style.padding = "100px";
+				//Let gray and white backgrounds take turn. This allows for a little bit of code reuse, if more bottom divs are to be added.
+				if(i % 2 == 0){
+					bottom_divs[i].style.backgroundColor = "rgb(249, 249, 249)";
+				}
+				else{
+					bottom_divs[i].style.backgroundColor = "white";
+				}
+
+			}
+			
+			document.getElementById("bottom_img_2").style.left = 0.7*screen.width;
+			
+			
+			//Add active state to the icons in the icon section, to learn more about the selected topic.
+			for (var i = 0; i < icon_images.length; i++) {
+				icon_images[i].addEventListener("click", function() {
+					var current = document.getElementsByClassName("active");
+					current[0].className = current[0].className.replace(" active", "");
+					this.className += " active";
+				});
+			}
+			
+			//Go to the page corresponding to the selected topic in the icons section.
+			function learnMore(){
+				var links = [
+							"https://astro.umaine.edu/10-fun-facts-about-black-holes/",
+							"https://nymag.com/intelligencer/2018/03/13-reasons-to-believe-aliens-are-real.html", 
+							"https://nineplanets.org/quasars/", 
+							"https://voyager.jpl.nasa.gov/frequently-asked-questions/fast-facts/#:~:text=The%20Voyager%20spacecraft%20are%20the,human%2Dmade%20object%20in%20space."
+							];
+				for(var i = 0; i < icon_images.length; i++){
+					if(icon_images[i].className === "icon_img active"){
+						window.open(links[i], '_blank');
+					}
+				}
+			}
+			
+			//Position icon section learn more button according to user's screen resolution.
+			icon_section_learnmore_btn.style.top = 1.6*screen.height;
+			icon_section_learnmore_btn.style.left = 0.465*screen.width;
+			
+			//Position the icon sections according to the user's screen resolution.
+			for (var i = 0; i < icon_sections.length; i++) {
+				icon_sections[i].style.left = 0.12*screen.width + (300*i);
+				icon_sections[i].style.top = 1.2*screen.height;
+			}
+			
+			//Position the green "about" line according to the user's screen resolution.
+			about_line.style.top = 1.03*screen.height;
+			about_line.style.left = 0.47*screen.width;
+			
+			//Position small "about space" description according to user's screen resolution.
+			small_about_space.style.top = 1.06*screen.height;
+			small_about_space.style.left = 0.33*screen.width;
+			
+			
+			//Position "About Space" according to user's screen resolution.
+			about_space.style.top = 0.92*screen.height;
+			about_space.style.left = 0.425*screen.width;
+			
+			//Position the navigation menu according to user's screen resolution.
+			nav_menu.style.top = 0.08*screen.height;
+			nav_menu.style.left = 0.6*screen.width;
+			
+			//Position the "Learn more" buttons according to the user's screen resolution.
+			for (var i = 0; i < learn_more_btns.length; i++) {
+				learn_more_btns[i].style.left = 0.46*screen.width;
+				learn_more_btns[i].style.top = 0.7*screen.height;
+				learn_more_btns[i].style.height = "28px";
+				learn_more_btns[i].style.width = "100px";
+			}
+		
+			//Position the planet names according to the user's screen resolution.
+			for (var i = 0; i < planet_names.length; i++) {
+				planet_names[i].style.left = 0.2*screen.width;
+				planet_names[i].style.top = 0.2*screen.height;
+			}
+			
+			//Position the planet descriptions according to the user's screen resolution.
+			for (var i = 0; i < planet_descs.length; i++) {
+				planet_descs[i].style.left = 0.16*screen.width;
+				planet_descs[i].style.top = 0.38*screen.height;
+				planet_descs[i].style.height = "250px";
+				planet_descs[i].style.width = "250px";
+			}
+			
+			//Position the left and right arrows according to the user's screen resolution.
+			right_arr.style.top = 0.4*screen.height;
+			right_arr.style.left = 0.88*screen.width;
+			left_arr.style.top = 0.4*screen.height;
+			left_arr.style.left = 0.115*screen.width;
+			
+			//Set position & dimensions of each picture in the carousel correctly.
+			for (var i = 0; i < pics.length; i++) {
+				pics[i].style.width = screen.width;
+				pics[i].style.height = 0.85 * screen.height;
+				pic_parts[i].style.width = screen.width;
+				pic_parts[i].style.height = 0.85 * screen.height;
+				if(i>0){
+					pic_parts[i].style.left = i * screen.width;
+				}
+			}
+			
+			//Set carousel dimensions. Five pictures in it, each of size = screen resolution.
+			container.style.width = 5 * screen.width;
+			container.style.height = 0.85 * screen.height;
+			
+			//Position little indicators according to the user's screen resolution.
+			for (var i = 0; i < indics.length; i++) {
+				indics[i].style.left += (screen.width / 2) + (i*40) - 100;
+			}
+			indic_cont.style.top = screen.height * 0.8;
+			
+			//Position in-page title according to the user's screen resolution.
+			title.style.top = 0.06 * screen.height;
+			title.style.left = 0.07 * screen.width;
+			
+			//The carousel transitions.
+			var global_pos = 0;
+			var current = 0;
+			var little_circles = document.getElementsByClassName("indicator");
+			function myMove(bool1){
+				var myVar = setInterval(anim, 5);
+				var sign;
+				var magnitude = 0;
+				//Set the direction of movement and color of indicator.
+				if(!bool1){
+					sign = '+';
+					--current;
+					little_circles[current + 1].style.fill = "white";
+					little_circles[current + 1].style.stroke = "white";
+					little_circles[current].style.fill = "red";
+					little_circles[current].style.stroke = "red";
+				}
+				else{
+					sign = '-';
+					++current;
+					little_circles[current - 1].style.fill = "white";
+					little_circles[current - 1].style.stroke = "white";
+					little_circles[current].style.fill = "red";
+					little_circles[current].style.stroke = "red";
+				}
+				//Make sure going past the first or last carousel picture is not allowed.
+				if(current == 0){
+					left_arrow.style.display = "none";
+				}
+				else if (current == 4){
+					right_arrow.style.display = "none";
+				}
+				else{
+					left_arrow.style.display = "block";
+					right_arrow.style.display = "block";
+				}
+				//Move the carousel to the left or right, depending on which arrow was clicked.
+				//This moves the carousel a number equal to the last multiple of 15 before the
+				//actual resolution of the user's screen. The remaining pixels are made up for later.
+				function anim(){
+					if(magnitude == magnitude_x){
+						clearInterval(myVar);
+					}
+					else{
+						magnitude++;
+						eval('global_pos' + sign + '=15');
+						carousel.style.left = global_pos + 'px';
+					}
+				}
+				//Make up for the remaining pixels to move the carousel the entire length of the user's screen.
+				eval('global_pos' + sign + '=' + remainder_x);
+				carousel.style.left = global_pos + 'px';
+			}
+			
+		</script>
+	</body>
+</html>
