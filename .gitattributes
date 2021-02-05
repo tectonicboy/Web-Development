@@ -1,2 +1,8 @@
 BIG_PROJECT/index.php linguist-vendored=false
 BIG_PROJECT/index.php linguist-language=HTML
+
+BIG_PROJECT/SERVER_SQL_COMMANDS.txt linguist-vendored=false
+BIG_PROJECT/SERVER_SQL_COMMANDS.txt linguist-language=SQL
+
+BIG_PROJECT/CommandHistory.txt linguist-vendored=false
+BIG_PROJECT/CommandHistory.txt linguist-language=SQL
