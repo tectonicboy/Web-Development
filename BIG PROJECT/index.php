@@ -1,36 +1,3 @@
-<?php
-	function printNews($str, $bool1){
-		if(strlen($str)>0){
-			if($bool1){
-				echo "<p style='position:absolute; top:80%; left:0%; background-color:rgb(212, 255, 212);
-				color:rgb(0, 122, 0);border-style:ridge;border-width:6px;
-				border-color:rgb(7, 235, 212);border-radius:8px;'>$str</p>";
-				return;
-			}
-			else{
-				echo "<p style='position:absolute; top:80%; left:0%; background-color:rgb(255, 214, 243);
-				color:red;border-style:ridge;
-				border-width:6px;border-color:purple;border-radius:8px;'>$str</p>";
-				return;
-			}
-		}
-		return;
-	}
-
-	/*
-	if(sizeof($_POST)>3){
-		$email = $_POST["EMAIL"];
-		$phone = $_POST["PHONE"];
-		$password = $_POST["PASSWORD"];
-		$con_pass = $_POST["CON_PASSWORD"];
-		if(strlen($email)>0)
-		$myfile = fopen("SERVER_SQL_COMMANDS.txt", "w") or die("Unable to open server sql commands file.");
-		//$cmd = ""
-		
-	}
-*/
-
-?>
 <html>
 	<head>
 		<title>Registration</title>
