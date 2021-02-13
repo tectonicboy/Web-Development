@@ -34,3 +34,5 @@ to load it properly from the state it was in the last time it was used.
 
 This project is mainly for the purposes of increasing my programming knowledge and skills. It has taught me quite a bit about C++, GUI programming with wxWidgets, and both 
 front-end and back-end web development.
+
+UPDATE: Apache + PHP are no longer used as backend technologies. Instead, I have gone ahead and written my own HTTP server from scratch in C, which is able to process server side variables from methods such as GET/POST.
