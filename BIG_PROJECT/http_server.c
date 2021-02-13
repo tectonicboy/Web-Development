@@ -135,21 +135,13 @@ int main(){
 
     //read the contents of the file into this response string.
     fgets(response_data, 8192, html_data);
-    //printf("We have read file contents: %s\n", response_data);
-
-    //Combine the header and the actual body by concatenating into one string.
     strcat(http_header, response_data);
 
-    //printf("Concatenated http header and data into http_header:%s\n", http_header);
-
-    //create a socket
-
-    //same params as TCP one.
+    //Create a socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    //we define the address again. Defines where our server is going to serve the data.
+    //Defines where our server is going to serve the data.
     server_address.sin_family = AF_INET;
-    //convert the port to the right format for this structure with htons.
     server_address.sin_port = htons(port);
     server_address.sin_addr.s_addr = INADDR_ANY;
 
@@ -165,21 +157,25 @@ int main(){
     	printf("Listening for HTTP requests on port %d...\n", port);
     	clientLen = sizeof(struct sockaddr_in);
         client_socket = accept(server_socket, (struct sockaddr*) &client_address, (socklen_t*) &clientLen);
-        //Now send some data back to the client.
+
     	memset(client_message, '\0', sizeof(client_message));
     	memset(serverside_variables, '\0', sizeof(serverside_variables));
+	    
     	if(recv(client_socket, client_message, sizeof(client_message), 0) < 0){
     		printf("Something went wrong while receiving client's HTTP request.\n");
     		break;
-    	}
+    	}   
     	printf("Client reply: %s\n", client_message);
+	    
     	sql_command_file = fopen("SERVER_SQL_COMMANDS.txt", "a");
 	if(!(sql_command_file)){printf("Unable to open SQL command file.\n");}
-	//CALL THE HTTP VARIABLES EXTRACTOR FUNCTION HERE.
+	    
 	Extract_HTTP_Variables(client_message, serverside_variables);
 	printf("After extracting HTTP variables, the string looks like this: %s\n", serverside_variables);
+	    
 	SQL_Command_Constructor(serverside_variables, sql_command_file);
     	fclose(sql_command_file);
+	    
         if(send(client_socket, http_header, sizeof(http_header), 0) < 0){
     		printf("Send failed.\n");
     	}
