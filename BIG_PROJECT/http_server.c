@@ -220,7 +220,6 @@ int main(){
 	if(!(sql_command_file)){printf("Unable to open SQL command file.\n");}
 	servervars_start_i = Extract_HTTP_Variables(client_message, serverside_variables);
 	printf("After extracting HTTP variables, the string looks like this: %s\n", serverside_variables);
-	printf("servervars_start_i = %u\n", servervars_start_i);
 	if(servervars_start_i < MESSAGE_BUFFER_SIZE){SQL_Command_Constructor(serverside_variables, sql_command_file);}
     	fclose(sql_command_file);
         if(send(client_socket, HTTP_response, strlen(HTTP_response), 0) < 0){
