@@ -71,8 +71,9 @@ unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables
 	int counter = 0;
         unsigned i = 0;
         unsigned offset = 0;
-    	while(!((client_message[i] == 'a') && (client_message[i+1] == 'c') && (client_message[i+2] == 't')
-	 && (client_message[i+3] == 'i') && (client_message[i+4] == 'o') && (client_message[i+5] == 'n') && (client_message[i+6] == '=')) && (i < 1024))
+    	while((i < 1024) && !((client_message[i] == 'a') && (client_message[i+1] == 'c') && (client_message[i+2] == 't')
+	 && (client_message[i+3] == 'i') && (client_message[i+4] == 'o') 
+	 && (client_message[i+5] == 'n') && (client_message[i+6] == '=')))
     	{
     		++i;
     	}
@@ -231,6 +232,6 @@ int main(){
     	}
         close(client_socket);
     }
-
+    printf("About to return 0 and exit.\n");
     return 0;
 }
