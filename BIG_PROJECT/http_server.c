@@ -180,7 +180,6 @@ int main(){
     }
     strcpy(HTTP_response, http_header);
     strcat(HTTP_response, response_data);
-    printf("Passed strcat call.\n");
 	
     //create a socket
 
