@@ -2,11 +2,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 #include <sys/socket.h>
 #include <sys/types.h>
 
 #include <netinet/in.h>
+
+#define MESSAGE_BUFFER_SIZE 1024
+
+size_t ReadFile(char* filePath, char** buffer) {
+    FILE *fd = fopen(filePath, "r");
+
+    if (!fd) {
+        printf("Could'nt open file\n");
+        return 0;
+    }
+    fseek(fd, 0, SEEK_END);
+    size_t numBytes = ftell(fd);
+    fseek(fd, 0, SEEK_SET);
+
+    if (numBytes == 0) {
+        fclose(fd);
+        printf("File is empty:\t%s\n", "multiline_file.txt");
+        return 0;
+    }
+
+    *buffer = calloc(1, numBytes+1);
+    assert(*buffer);
+
+    int read = fread(*buffer, numBytes, 1, fd);
+    assert(read);
+    fclose(fd);
+
+    return numBytes;
+}
 
 long long hexdec(char first, char second){
 	    char hex[3];
@@ -37,7 +67,7 @@ long long hexdec(char first, char second){
 	    return decimal;
 }
 
-void Extract_HTTP_Variables(char* client_message, char* serverside_variables){
+unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables){
 	int counter = 0;
         unsigned i = 0;
         unsigned offset = 0;
@@ -69,6 +99,7 @@ void Extract_HTTP_Variables(char* client_message, char* serverside_variables){
 		
     	}
     	printf("Looped in server side variables string for %d times before encountering null character\n", counter);
+	return i;
 }
 
 void SQL_Command_Constructor(char* vars, FILE* cmd_output){
@@ -125,23 +156,42 @@ void SQL_Command_Constructor(char* vars, FILE* cmd_output){
 
 int main(){
     int server_socket, client_socket, clientLen, read_size, port = 80;
-    char http_header[16384] = "HTTP/1.1 200 OK\r\n\n";
-    char response_data[8192];
-    char client_message[1024] = {0};
+    char* http_header = "HTTP/1.1 200 OK\r\n\n";
+    //char* response_data = calloc(1, 20000);
+    char* response_data;
+    if((posix_memalign((void*)&response_data, 64, 65536)) != 0){
+	printf("Unable to allocate 64-byte aligned memory for html buffer.\n");
+    }
+    //char* client_message = calloc(1, MESSAGE_BUFFER_SIZE);
+    char* client_message;
+    if((posix_memalign((void*)&client_message, 64, MESSAGE_BUFFER_SIZE) ) != 0){
+        printf("Unable to allocate 64-byte aligned memory for client HTTP request buffer.\n");
+    }	
+
     struct sockaddr_in server_address, client_address;
+    char* fname = "index.php";
 
-    FILE* html_data;
-    html_data = fopen("index.php", "r");
+    size_t f_siz = ReadFile(fname, &response_data);
 
-    //read the contents of the file into this response string.
-    fgets(response_data, 8192, html_data);
-    strcat(http_header, response_data);
+    printf("We have read file contents: %s\n", response_data);
 
-    //Create a socket
+    //Combine the header and the actual body by concatenating into one string.
+   // char* HTTP_response = calloc(1, (strlen(http_header) + strlen(response_data) + 1));
+    char* HTTP_response;
+    if((posix_memalign((void*)&HTTP_response, 64, (strlen(http_header) + strlen(response_data) + 1))) != 0){
+	printf("Unable to allocate 64-byte aligned memory for HTTP response buffer.\n");
+    }
+    strcpy(HTTP_response, http_header);
+    strcat(HTTP_response, response_data);
+    printf("Passed strcat call.\n");
+    //create a socket
+
+    //same params as TCP one.
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    //Defines where our server is going to serve the data.
+    //we define the address again. Defines where our server is going to serve the data.
     server_address.sin_family = AF_INET;
+    //convert the port to the right format for this structure with htons.
     server_address.sin_port = htons(port);
     server_address.sin_addr.s_addr = INADDR_ANY;
 
@@ -150,33 +200,33 @@ int main(){
     listen(server_socket, 5);
 
     FILE* sql_command_file;
-    char serverside_variables[1024];
-
+    //char* serverside_variables = calloc(1, MESSAGE_BUFFER_SIZE);
+    char* serverside_variables;
+    if((posix_memalign((void*)&serverside_variables, 64, MESSAGE_BUFFER_SIZE) ) != 0){
+	printf("Unable to allocate 64-byte aligned memory for serverside variables buffer.\n");
+    }
     //We wrap in an infinite while loop so the server can continue serving and responding to requests forever.
+    unsigned servervars_start_i;
     while(1){
     	printf("Listening for HTTP requests on port %d...\n", port);
     	clientLen = sizeof(struct sockaddr_in);
         client_socket = accept(server_socket, (struct sockaddr*) &client_address, (socklen_t*) &clientLen);
-
-    	memset(client_message, '\0', sizeof(client_message));
-    	memset(serverside_variables, '\0', sizeof(serverside_variables));
-	    
-    	if(recv(client_socket, client_message, sizeof(client_message), 0) < 0){
+	//We are zeroing them with memset() because these will change with every different HTTP client request!!
+	memset(client_message, 0x0, MESSAGE_BUFFER_SIZE);
+    	memset(serverside_variables, 0x0, MESSAGE_BUFFER_SIZE);
+    	if(recv(client_socket, client_message, 1024, 0) < 0){
     		printf("Something went wrong while receiving client's HTTP request.\n");
     		break;
-    	}   
+    	}
     	printf("Client reply: %s\n", client_message);
-	    
     	sql_command_file = fopen("SERVER_SQL_COMMANDS.txt", "a");
 	if(!(sql_command_file)){printf("Unable to open SQL command file.\n");}
-	    
-	Extract_HTTP_Variables(client_message, serverside_variables);
+	servervars_start_i = Extract_HTTP_Variables(client_message, serverside_variables);
 	printf("After extracting HTTP variables, the string looks like this: %s\n", serverside_variables);
-	    
-	SQL_Command_Constructor(serverside_variables, sql_command_file);
+	printf("servervars_start_i = %u\n", servervars_start_i);
+	if(servervars_start_i < MESSAGE_BUFFER_SIZE){SQL_Command_Constructor(serverside_variables, sql_command_file);}
     	fclose(sql_command_file);
-	    
-        if(send(client_socket, http_header, sizeof(http_header), 0) < 0){
+        if(send(client_socket, HTTP_response, strlen(HTTP_response), 0) < 0){
     		printf("Send failed.\n");
     	}
         close(client_socket);
