@@ -158,12 +158,10 @@ void SQL_Command_Constructor(char* vars, FILE* cmd_output){
 int main(){
     int server_socket, client_socket, clientLen, read_size, port = 80;
     char* http_header = "HTTP/1.1 200 OK\r\n\n";
-    //char* response_data = calloc(1, 20000);
     char* response_data;
     if((posix_memalign((void*)&response_data, 64, 65536)) != 0){
 	printf("Unable to allocate 64-byte aligned memory for html buffer.\n");
     }
-    //char* client_message = calloc(1, MESSAGE_BUFFER_SIZE);
     char* client_message;
     if((posix_memalign((void*)&client_message, 64, MESSAGE_BUFFER_SIZE) ) != 0){
         printf("Unable to allocate 64-byte aligned memory for client HTTP request buffer.\n");
@@ -175,9 +173,7 @@ int main(){
     size_t f_siz = ReadFile(fname, &response_data);
 
     printf("We have read file contents: %s\n", response_data);
-
-    //Combine the header and the actual body by concatenating into one string.
-   // char* HTTP_response = calloc(1, (strlen(http_header) + strlen(response_data) + 1));
+	
     char* HTTP_response;
     if((posix_memalign((void*)&HTTP_response, 64, (strlen(http_header) + strlen(response_data) + 1))) != 0){
 	printf("Unable to allocate 64-byte aligned memory for HTTP response buffer.\n");
@@ -185,6 +181,7 @@ int main(){
     strcpy(HTTP_response, http_header);
     strcat(HTTP_response, response_data);
     printf("Passed strcat call.\n");
+	
     //create a socket
 
     //same params as TCP one.
@@ -201,7 +198,6 @@ int main(){
     listen(server_socket, 5);
 
     FILE* sql_command_file;
-    //char* serverside_variables = calloc(1, MESSAGE_BUFFER_SIZE);
     char* serverside_variables;
     if((posix_memalign((void*)&serverside_variables, 64, MESSAGE_BUFFER_SIZE) ) != 0){
 	printf("Unable to allocate 64-byte aligned memory for serverside variables buffer.\n");
