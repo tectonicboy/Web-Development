@@ -17,7 +17,7 @@ size_t ReadFile(char* filePath, char** buffer, char* mode) {
     	FILE *fd = fopen(filePath, mode);
 
     if (!fd) {
-        printf("Could'nt open file\n");
+        printf("Couldn't open file\n");
         return 0;
     }
     fseek(fd, 0, SEEK_END);
@@ -31,7 +31,7 @@ size_t ReadFile(char* filePath, char** buffer, char* mode) {
         return 0;
     }
 
-    *buffer = calloc(1, numBytes+1);
+    *buffer = calloc(1, numBytes);
     assert(*buffer);
 
     int read = fread(*buffer, numBytes, 1, fd);
@@ -70,6 +70,7 @@ long long hexdec(char first, char second){
 	return decimal;
 }
 
+//Very specific for this system, not generalized at all.
 unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables){
 	int counter = 0;
         unsigned i = 0;
@@ -111,8 +112,9 @@ unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables
 
 void SQL_Command_Constructor(char* vars, FILE* cmd_output){
 	char email[32], phone[32], pass[32], db_name[256] = "USERS_DB-", tbl_name[32] = "People-",
-		insert[8] = "INSERT-", into[8] = "INTO-", vals[8] = "VALS-";
+		insert_into[16] = "INSERT-INTO-", vals[8] = "VALS-";
 	char* ptr = NULL;
+	char* SQL_command;
 	memset(email, '\0', sizeof(email));
 	memset(phone, '\0', sizeof(phone));
 	memset(pass, '\0', sizeof(pass));
@@ -151,10 +153,9 @@ void SQL_Command_Constructor(char* vars, FILE* cmd_output){
 		goto l1; 
 	}
 	printf("Extracted SQL command strings: email=%s, phone=%s, pass=%s\n", email, phone, pass);
-	strcat(db_name, insert); strcat(db_name, into); strcat(db_name, tbl_name);
-	strcat(db_name, vals); strcat(db_name, email); strcat(db_name, phone); strcat(db_name, pass);
-	printf("Constructed the following custom SQL command: %s\n", db_name);
-	fprintf(cmd_output, db_name);
+	asprintf(&SQL_command, "%s%s%s%s%s%s%s", db_name, insert_into, tbl_name, vals, email, phone, pass);
+	printf("Constructed the following custom SQL command: %s\n", SQL_command);
+	fprintf(cmd_output, SQL_command);
 	printf("Successfully wrote the SQL command to the file!\n");
 	return;
 }
@@ -164,7 +165,7 @@ u_int32_t Create_HTTPsend_Filebuf(char* fname, char* ftype, char* mode, char** b
     	char* cont_len = "Content-Length: ";
     	char* fbuf;
     	size_t fsiz = ReadFile(fname, &fbuf, mode);
-   	char* fullHeader = NULL;
+   	char* fullHeader;
    	asprintf(&fullHeader, "%s %s\r\n%s %lu\r\n\n", http_header, ftype, cont_len, fsiz);
     	*buf = calloc(1, (strlen(fullHeader) + fsiz));
     	memcpy(*buf, fullHeader, strlen(fullHeader));
@@ -175,22 +176,21 @@ u_int32_t Create_HTTPsend_Filebuf(char* fname, char* ftype, char* mode, char** b
 }
 
 int main(){
-    	char* r_mode = "r"; char* rb_mode = "rb";
 	char* bgimg_name = "pic5.jpg"; char* topicon_name = "favicon.ico";
 	char* jpgftype = "image/jpg"; char* icotype = "image/x-icon";
 
 	char* bgimg_response_buf;
-	size_t bgimg_resp_buf_siz = Create_HTTPsend_Filebuf(bgimg_name, jpgftype, rb_mode, &bgimg_response_buf);
+	size_t bgimg_resp_buf_siz = Create_HTTPsend_Filebuf(bgimg_name, jpgftype, "rb", &bgimg_response_buf);
 
 	char* ico_response_buf;
-	size_t ico_response_buf_siz = Create_HTTPsend_Filebuf(topicon_name, icotype, rb_mode, &ico_response_buf);
+	size_t ico_response_buf_siz = Create_HTTPsend_Filebuf(topicon_name, icotype, "rb", &ico_response_buf);
 
     	//Creating HTTP response buffer for webpage code.
 	char* webpage_code;
 	if(posix_memalign((void*)&webpage_code, 64, 65536) != 0){printf("HTML buf mem alloc failed.\n");}
 	char* http_header = "HTTP/1.1 200 OK\r\n\n";
 	char* fname = "index.html";
-    	size_t f_siz = ReadFile(fname, &webpage_code, r_mode);
+    	size_t f_siz = ReadFile(fname, &webpage_code, "r");
 	char* HTTP_response;
     	if((posix_memalign((void*)&HTTP_response, 64, (strlen(http_header) + strlen(webpage_code) + 1))) != 0){printf("HTTP response buf mem alloc fail\n");}
     	strcpy(HTTP_response, http_header);
@@ -212,7 +212,7 @@ int main(){
 
 	//Declarations to be used in serving loop.
     	char* serverside_variables;
-    	if((posix_memalign((void*)&serverside_variables, 64, MESSAGE_BUFFER_SIZE) ) != 0){printf("HTTP vars buf mem alloc fail.\n");}
+    	if((posix_memalign((void*)&serverside_variables, 64, 0.25*MESSAGE_BUFFER_SIZE) ) != 0){printf("HTTP vars buf mem alloc fail.\n");}
 
     	char* requested_fname;
     	if(posix_memalign((void*)&requested_fname, 64, 64) != 0){printf("Req. fname buf mem alloc fail.\n");}
@@ -223,7 +223,8 @@ int main(){
 	FILE* sql_command_file;
 	unsigned servervars_start_i;
 	struct sockaddr_in client_address;
-    	int client_socket, sent, clientLen = sizeof(struct sockaddr_in);
+    	int client_socket, sent; //clientLen = sizeof(struct sockaddr_in);
+	socklen_t clientLen = sizeof(struct sockaddr_in);
     	u_int32_t imageResponseLen;
    	size_t k;
     	//We wrap in an infinite while loop so the server can continue serving and responding to requests forever.
@@ -231,7 +232,7 @@ int main(){
 		sent = 0;
 		k = 5;
 		memset(client_message, 0x0, MESSAGE_BUFFER_SIZE);
-    		memset(serverside_variables, 0x0, MESSAGE_BUFFER_SIZE);
+    		memset(serverside_variables, 0x0, 0.25*MESSAGE_BUFFER_SIZE);
 		memset(requested_fname, 0x0, 64);
 
     		printf("\n\nListening for HTTP requests on port %d...\n", port);
@@ -242,8 +243,9 @@ int main(){
     			break;
     		}
     		printf("\n****** Received an HTTP request ****** \n%s\n", client_message);
-		while(!(client_message[k+1] == 'H' && client_message[k+2] == 'T' 
-			&& client_message[k+3] == 'T' && client_message[k+4] == 'P'))
+		printf("The size of the HTTP request is: %lu\n", strlen(client_message));
+		while(!(client_message[k+1] == 72 && client_message[k+2] == 84 
+			&& client_message[k+3] == 84 && client_message[k+4] == 80))
 		{
 			requested_fname[k-5] = client_message[k];
 			++k;
