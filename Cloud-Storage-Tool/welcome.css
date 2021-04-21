@@ -1,0 +1,40 @@
+			body{
+				overflow-x: hidden;
+			}
+			.btn{
+				background-color:azure;
+				height:30px;
+				width:100px;
+				font-size:14px;
+				text-align:center;
+				border: ridge 2px blue;
+				border-radius:20%;
+				font-family: "Orbitron";
+				padding-top:5px;
+			}
+			
+			#gear_big{
+				position:absolute;
+				top:500px;
+				left:10px;
+				width:300px;
+				height:300px;
+			}
+			
+			#gear_small{
+				position:absolute;
+				top:500px;
+				left:296px;
+				width:150px;
+				height:150px;
+			}
+		
+			#wall_div{
+				width:130%;
+				height:35%;
+				position:absolute;
+				top:32.5%;
+				background-color:rgb(52, 195, 235);
+				opacity:0.8;
+				left:-20px;
+			}
