@@ -1,8 +1,7 @@
 var rand = 0;
 var rand_Y = 0;
 var sign = '+';
-var t1; var t2; 
-var t3; var t4;
+var t1; var t2; var t3; var t4;
 var clouds = [
 		[$('#cloud_1'), $('#cloud_1').css("left")], [$('#cloud_2'), $('#cloud_2').css("left")], [$('#cloud_3'), $('#cloud_3').css("left")],
 		[$('#cloud_4'), $('#cloud_4').css("left")], [$('#cloud_5'), $('#cloud_5').css("left")], [$('#cloud_6'), $('#cloud_6').css("left")],
