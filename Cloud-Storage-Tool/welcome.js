@@ -1,15 +1,15 @@
-var rand = 0;
-var rand_Y = 0;
-var sign = '+';
-var t1; var t2; var t3; var t4;
-var clouds = [
-		[$('#cloud_1'), $('#cloud_1').css("left")], [$('#cloud_2'), $('#cloud_2').css("left")], [$('#cloud_3'), $('#cloud_3').css("left")],
-		[$('#cloud_4'), $('#cloud_4').css("left")], [$('#cloud_5'), $('#cloud_5').css("left")], [$('#cloud_6'), $('#cloud_6').css("left")],
-		[$('#cloud_7'), $('#cloud_7').css("left")], [$('#cloud_8'), $('#cloud_8').css("left")], [$('#cloud_9'), $('#cloud_9').css("left")],
-		[$('#cloud_10'), $('#cloud_10').css("left")], [$('#cloud_11'), $('#cloud_11').css("left")], [$('#cloud_12'), $('#cloud_12').css("left")],
-		[$('#cloud_13'), $('#cloud_13').css("left")], [$('#cloud_14'), $('#cloud_14').css("left")], [$('#cloud_15'), $('#cloud_15').css("left")]
-	     ];
-
+		var rand = 0;
+		var rand_Y = 0;
+		var sign = '+';
+		var t1; var t2; var t3; var t4;
+		var clouds = [
+				[$('#cloud_1'), $('#cloud_1').css("left")], [$('#cloud_2'), $('#cloud_2').css("left")], [$('#cloud_3'), $('#cloud_3').css("left")],
+				[$('#cloud_4'), $('#cloud_4').css("left")], [$('#cloud_5'), $('#cloud_5').css("left")], [$('#cloud_6'), $('#cloud_6').css("left")],
+				[$('#cloud_7'), $('#cloud_7').css("left")], [$('#cloud_8'), $('#cloud_8').css("left")], [$('#cloud_9'), $('#cloud_9').css("left")],
+				[$('#cloud_10'), $('#cloud_10').css("left")], [$('#cloud_11'), $('#cloud_11').css("left")], [$('#cloud_12'), $('#cloud_12').css("left")],
+				[$('#cloud_13'), $('#cloud_13').css("left")], [$('#cloud_14'), $('#cloud_14').css("left")], [$('#cloud_15'), $('#cloud_15').css("left")]
+	     		     ];
+		
 			function AnimateClouds(){
 				if(!document.hidden){
 					for(var i = 0; i < 3; ++i){
@@ -18,9 +18,9 @@ var clouds = [
 						rand_Y = Math.round(Math.random() * 15);
 						rand = Math.round(Math.random() * 10001);
 						$(clouds[i][0]).animate(
-							{left:"+=3000"}, (12000 + rand), "linear",
+							{left:"+=156.25%"}, (12000 + rand), "linear",
 							function(){
-								$(this).css("left", "-=3000");
+								$(this).css("left", "-=156.25%");
 								$(this).css("top", (sign + '=' + (rand_Y.toString()) ));
 							}
 						);
@@ -32,9 +32,9 @@ var clouds = [
 							rand_Y = Math.round(Math.random() * 15);
 							rand = Math.round(Math.random() * 10001);
 							$(clouds[i][0]).animate(
-								{left:"+=3000"}, (12000 + rand), "linear",
+								{left:"+=156.25%"}, (12000 + rand), "linear",
 								function(){
-									$(this).css("left", "-=3000");
+									$(this).css("left", "-=156.25%");
 									$(this).css("top", (sign + '=' + (rand_Y.toString()) ));
 								}
 							);
@@ -46,9 +46,9 @@ var clouds = [
 								rand_Y = Math.round(Math.random() * 15);
 								rand = Math.round(Math.random() * 10001);
 								$(clouds[i][0]).animate(
-									{left:"+=3000"}, (12000 + rand), "linear",
+									{left:"+=156.25%"}, (12000 + rand), "linear",
 									function(){
-										$(this).css("left", "-=3000");
+										$(this).css("left", "-=156.25%");
 										$(this).css("top", (sign + '=' + (rand_Y.toString()) ));
 									}
 								);
@@ -60,9 +60,9 @@ var clouds = [
 									rand_Y = Math.round(Math.random() * 15);
 									rand = Math.round(Math.random() * 10001);
 									$(clouds[i][0]).animate(
-										{left:"+=3000"}, (12000 + rand), "linear",
+										{left:"+=156.25%"}, (12000 + rand), "linear",
 										function(){
-											$(this).css("left", "-=3000");
+											$(this).css("left", "-=156.25%");
 											$(this).css("top", (sign + '=' + (rand_Y.toString()) ));
 										}
 									);
@@ -74,9 +74,9 @@ var clouds = [
 										rand_Y = Math.round(Math.random() * 15);
 										rand = Math.round(Math.random() * 10001);
 										$(clouds[i][0]).animate(
-											{left:"+=3000"}, (12000 + rand), "linear",
+											{left:"+=156.25%"}, (12000 + rand), "linear",
 											function(){
-												$(this).css("left", "-=3000");
+												$(this).css("left", "-=156.25%");
 												$(this).css("top", (sign + '=' + (rand_Y.toString()) ));
 											}
 										);
@@ -121,6 +121,7 @@ var clouds = [
 						{ deg: (240*times) },
 						{
 							duration: 1100,
+							easing: "linear",
 							step: function(now){
 								$(this).css({ transform: 'rotate(' + now + 'deg)' });
 							}	
@@ -131,14 +132,52 @@ var clouds = [
 						{deg: ((-240) * times)},
 						{
 							duration:1100,
+							easing: "linear",
 							step: function(now){
 								$(this).css({ transform: 'rotate(' + now + 'deg)'});
 							},
 							complete: function(){
 								locked = false;
-							}
-								
+							}	
 						}
 					);
 				}
 			}
+	
+			function ChangePanels(curr_id, next_id){
+				RotateGears();
+				$('#' + curr_id).animate({left:"-=72%"}, (1060), "linear",function(){});
+				$('#' + next_id).animate({left:"-=72%"}, (1060), "linear",function(){});
+			}
+
+			$('#returning_btn').click(function(){ChangePanels("boxdiv1", "log_username");});
+
+			$('#login_usr_nextbtn').click(function(){
+				if($('#log_usr_in').val() == ""){
+					$('#err_p').text("Field can't be empty"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if(($('#log_usr_in').val()).length > 16){
+					$('#err_p').text("Max length: 16 characters"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else{
+					let response = '';
+					let username = $('#log_usr_in').val()
+					$.ajax({ 
+						type: 'POST',
+						dataType: 'text',
+						data: { 
+							action : "checkusername",
+							username : username
+						},
+						success: function(text){
+							response = text;
+						}
+					})
+					alert(response);
+				}
+				ChangePanels("log_username", "log_pass");
+			});
