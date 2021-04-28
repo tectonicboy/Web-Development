@@ -57,7 +57,7 @@ var clouds = [
 								for(var i = 9; i < 12; ++i){
 									if(Math.round(Math.random())){sign = '+';}
 									else{sign = '-';}
-									rand_Y = Math.round(Math.random() * 15);
+									rand_Y = Math.round(Math.random() * 5);
 									rand = Math.round(Math.random() * 10001);
 									$(clouds[i][0]).animate(
 										{left:"+=156.25%"}, (12000 + rand), "linear",
@@ -164,20 +164,24 @@ var clouds = [
 					return;
 				}
 				else{
-					let response = '';
 					let username = $('#log_usr_in').val()
 					$.ajax({ 
-						type: 'POST',
+						type: 'POST',				
 						dataType: 'text',
 						data: { 
-							action : "checkusername",
+							action : "A",
 							username : username
-						},
-						success: function(text){
-							response = text;
 						}
 					})
-					alert(response);
+					.done(function(response) {
+					    	if(response == 'no'){
+							$('#err_p').text("The username doesn't exist."); 
+							$('#err_p').css("display", "block");
+						}
+						else{
+							$('#err_p').css("display", "none");
+							ChangePanels("log_username", "log_pass");
+						}
+					})
 				}
-				ChangePanels("log_username", "log_pass");
 			});
