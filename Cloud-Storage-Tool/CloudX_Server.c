@@ -81,77 +81,50 @@ unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables
     	else {printf("No server side variables in this http request.\n\n"); found = 0;}
 	if(found){
 	    	for(unsigned j = i; client_message[j] != '\0';){
-	    		++counter;
-	    		if((client_message[j] == '%')){
-	    			serverside_variables[j - i - offset] = hexdec(client_message[j+1], client_message[j+2]);
-	    			j += 3;
-				offset += 2;
-	    		}
-			if(client_message[j] == '&'){
-				serverside_variables[j - i - offset] = '-';
-				++j;
+			while(client_message[j] != '='){++j; ++counter; ++offset;}
+			++j; ++counter; ++offset;
+			while(client_message[j] != '&'){
+				if((client_message[j] == '%')){
+	    				serverside_variables[j - i - offset] = hexdec(client_message[j+1], client_message[j+2]);
+	    				j += 3;
+					offset += 2;
+					++counter;
+	    			}
+		    		else{
+		    			serverside_variables[j - i - offset] = client_message[j];
+		    			++j; 
+					++counter;
+		    		}
+				if(client_message[j] == '\0'){
+					serverside_variables[j - i - offset] = '\n';
+					printf("Extracted HTTP variables string: %s\n", serverside_variables);
+					return i;
+				}
 			}
-	    		else{
-	    			serverside_variables[j - i - offset] = client_message[j];
-	    			++j;
-	    		}
-			if(client_message[j] == '\0'){
-				serverside_variables[j - i - offset] = '\n';
-			}
-			
+			serverside_variables[j - i - offset] = '-';
+			++j; ++counter;
 	    	}
 	}
-    	if(counter > 0){printf("Looped in server side variables string for %d times before encountering null character\n", counter);}
 	return i;
 }
 
 void Generate_SQL_Command(char* vars, FILE* cmd_output){
-	char email[32], phone[32], pass[32], db_name[256] = "USERS_DB-", tbl_name[32] = "People-",
-		insert_into[16] = "INSERT-INTO-", vals[8] = "VALS-";
-	char* ptr = NULL;
-	char* SQL_command;
-	memset(email, '\0', sizeof(email));
-	memset(phone, '\0', sizeof(phone));
-	memset(pass, '\0', sizeof(pass));
-	unsigned i = 0, j = 0, var_counter = 0;
-	l1:
-	while((vars[i] != '=') && ((vars[i] != '\0'))){++i;}
-	++i;
-	switch(var_counter){
-		case 1:
-			ptr = email;
-			break;
-		case 2:
-			ptr = phone;
-			break;
-		case 3:
-			ptr = pass;
-			break;
-		default:
-			break;
-	}
-	while((vars[i] != '-') && (vars[i] != '\0')){
-		if(var_counter == 0){++i;}
-		else{
-			*(ptr + j) = vars[i];
-			if((vars[i+1] == '-') && (var_counter < 3)){
-				*(ptr + j + 1) = vars[i+1];
+	unsigned pos = 2;
+	switch(vars[0]){
+		case 'A':{
+			char SQL_Command[128] = "CloudX_DB-CHECK-Users-name-";
+			while(vars[pos] != '\n'){
+				SQL_Command[pos - 2 + 27] = vars[pos]; 
+				++pos;
 			}
-			++i;
-			++j;
+			printf("Constructed the following custom SQL command: %s\n", SQL_Command);
+			fprintf(cmd_output, SQL_Command);
+			break;
 		}
+		default:{
+			break;
+		}	  
 	}
-	++i;
-	j = 0;
-	if(var_counter < 3){ 
-		++var_counter;
-		goto l1; 
-	}
-	printf("Extracted SQL command strings: email=%s, phone=%s, pass=%s\n", email, phone, pass);
-	asprintf(&SQL_command, "%s%s%s%s%s%s%s", db_name, insert_into, tbl_name, vals, email, phone, pass);
-	printf("Constructed the following custom SQL command: %s\n", SQL_command);
-	fprintf(cmd_output, SQL_command);
-	printf("Successfully wrote the SQL command to the file!\n\n");
 	return;
 }
 
@@ -176,21 +149,14 @@ u_int32_t Create_HTTPsend_Filebuf(char* fname, char* ftype, char* mode, char** b
 }
 
 int main(){
-	char* cloudimg_name="resources/cloud.svg", *gearimg_name="resources/gear.svg", *favico_name="resources/favicon.ico", *firstpage_name = "index.html";
-	char*jpgtype="image/jpg", *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html";
+	char *cloudimg_name="resources/cloud.svg", *gearimg_name="resources/gear.svg", *favico_name="resources/favicon.ico", *firstpage_name = "index.html";
+	char *jpgtype="image/jpg", *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html";
 
-	char* cloudimg_response_buf;
-	size_t cloudimg_resp_buf_siz = Create_HTTPsend_Filebuf(cloudimg_name, svgtype, "rb", &cloudimg_response_buf);
-
-	char* gearimg_response_buf;
-	size_t gearimg_response_buf_siz = Create_HTTPsend_Filebuf(gearimg_name, svgtype, "rb", &gearimg_response_buf);
-	
-	char* favico_response_buf;
-	size_t favico_response_buf_siz = Create_HTTPsend_Filebuf(favico_name, icotype, "rb", &favico_response_buf);
-
-    	//Creating HTTP response buffer for webpage code.
-	char* firstpage_response_buf;
-	size_t firstpage_buf_siz = Create_HTTPsend_Filebuf(firstpage_name, htmltype, "r", &firstpage_response_buf); 
+	char *cloudimg_response_buf, *gearimg_response_buf, *favico_response_buf, *firstpage_response_buf;
+	size_t cloudimg_resp_buf_siz = Create_HTTPsend_Filebuf(cloudimg_name, svgtype, "rb", &cloudimg_response_buf),
+	       gearimg_response_buf_siz = Create_HTTPsend_Filebuf(gearimg_name, svgtype, "rb", &gearimg_response_buf),
+	       favico_response_buf_siz = Create_HTTPsend_Filebuf(favico_name, icotype, "rb", &favico_response_buf),
+	       firstpage_buf_siz = Create_HTTPsend_Filebuf(firstpage_name, htmltype, "r", &firstpage_response_buf); 
 
 	//Create the server socket, bind a name to it and make it listen on port 80
 	int port = 80, server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -199,14 +165,14 @@ int main(){
 	listen(server_socket, 16);
 
 	//Declarations for serving loop
-	FILE* sql_command_file;
+	FILE *sql_command_file, *response;
 	unsigned servervars_start_i;
 	struct sockaddr_in client_address;
     	int client_socket, sent;
 	socklen_t clientLen = sizeof(struct sockaddr_in);
     	u_int32_t imageResponseLen;
-   	size_t k;
-	char *serverside_variables, *requested_fname, *client_message;
+   	size_t k, db_response_siz;
+	char *serverside_variables, *requested_fname, *client_message, *db_response;
 	if(memalign((void*)&serverside_variables, 64, 256) || memalign((void*)&requested_fname, 64, 64) || memalign((void*)&client_message, 64, 2048)){return 0;}
 
 	//Serving loop
@@ -243,17 +209,22 @@ int main(){
 		printf("After dealing with requested file name, sent = %d\n", sent);
 
 		servervars_start_i = Extract_HTTP_Variables(client_message, serverside_variables);
-		if(*serverside_variables){printf("Extracted HTTP variables string: %s\n", serverside_variables);}
 		if(servervars_start_i < 2048){
 			l2:
 	    		sql_command_file = fopen("SERVER_SQL_COMMANDS.txt", "a");
 			if(!(sql_command_file)){
 				printf("Unable to open SQL command file for appending. Retrying...\n");
-				usleep(0.2 * TIME_SECOND);
+				usleep(0.1 * TIME_SECOND);
 				goto l2;
 			}
 			Generate_SQL_Command(serverside_variables, sql_command_file);
-			fclose(sql_command_file);	
+			fclose(sql_command_file);
+			usleep(0.3 * TIME_SECOND);
+			db_response_siz = ReadFile("response.txt", &db_response,"r");
+			printf("About to send back the following string: %s\n", db_response);
+			if(send(client_socket, db_response, db_response_siz, 0) < 0){printf("firstpage code send fail\n");}
+			else{printf("Sent db response successfully.\n"); sent = 1;}
+			free(db_response);
 		}
 
         	if(!sent){
