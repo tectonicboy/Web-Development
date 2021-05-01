@@ -122,9 +122,8 @@ void Generate_SQL_Command(char* vars){
 			buf[pos - 2 + 27] = '\0';
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			
-			int fd;
+			int fd = socket(AF_UNIX, SOCK_STREAM, 0);
 			struct sockaddr_un addr;
-			fd = socket(AF_UNIX, SOCK_STREAM, 0);
 			memset(&addr, 0x0, sizeof(addr));
 			addr.sun_family = AF_UNIX;
 			*addr.sun_path = '\0';
