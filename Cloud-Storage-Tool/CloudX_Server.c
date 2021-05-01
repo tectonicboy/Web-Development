@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+#include <sys/un.h>
 
 #define memalign posix_memalign
 #define TIME_SECOND 1000000
@@ -108,17 +109,32 @@ unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables
 	return i;
 }
 
-void Generate_SQL_Command(char* vars, FILE* cmd_output){
+void Generate_SQL_Command(char* vars){
 	unsigned pos = 2;
 	switch(vars[0]){
 		case 'A':{
-			char SQL_Command[128] = "CloudX_DB-CHECK-Users-name-";
+			char *socket_path = "\0hidden";
+			char buf[128] = "CloudX_DB-CHECK-Users-name-";
 			while(vars[pos] != '\n'){
-				SQL_Command[pos - 2 + 27] = vars[pos]; 
+				buf[pos - 2 + 27] = vars[pos]; 
 				++pos;
 			}
-			printf("Constructed the following custom SQL command: %s\n", SQL_Command);
-			fprintf(cmd_output, SQL_Command);
+			buf[pos - 2 + 27] = '\0';
+			printf("Constructed the following custom SQL command: %s\n", buf);
+			
+			int fd;
+			struct sockaddr_un addr;
+			fd = socket(AF_UNIX, SOCK_STREAM, 0);
+			memset(&addr, 0x0, sizeof(addr));
+			addr.sun_family = AF_UNIX;
+			*addr.sun_path = '\0';
+			strncpy(addr.sun_path+1, socket_path+1, sizeof(addr.sun_path)-2);
+			connect(fd, (struct sockaddr*)&addr, sizeof(addr));
+			write(fd, buf, strlen(buf));
+			memset(buf, 0x0, sizeof(buf));
+			read(fd, buf, sizeof(buf));
+			printf("The database system sent the following answer: %s\n", buf);
+			close(fd);
 			break;
 		}
 		default:{
@@ -165,7 +181,7 @@ int main(){
 	listen(server_socket, 16);
 
 	//Declarations for serving loop
-	FILE *sql_command_file, *response;
+	FILE *response;
 	unsigned servervars_start_i;
 	struct sockaddr_in client_address;
     	int client_socket, sent;
@@ -210,15 +226,7 @@ int main(){
 
 		servervars_start_i = Extract_HTTP_Variables(client_message, serverside_variables);
 		if(servervars_start_i < 2048){
-			l2:
-	    		sql_command_file = fopen("SERVER_SQL_COMMANDS.txt", "a");
-			if(!(sql_command_file)){
-				printf("Unable to open SQL command file for appending. Retrying...\n");
-				usleep(0.1 * TIME_SECOND);
-				goto l2;
-			}
-			Generate_SQL_Command(serverside_variables, sql_command_file);
-			fclose(sql_command_file);
+			Generate_SQL_Command(serverside_variables);
 			usleep(0.3 * TIME_SECOND);
 			db_response_siz = ReadFile("response.txt", &db_response,"r");
 			printf("About to send back the following string: %s\n", db_response);
