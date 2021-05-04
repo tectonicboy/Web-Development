@@ -15,7 +15,7 @@ var clouds = [
 					for(var i = 0; i < 3; ++i){
 						if(Math.round(Math.random())){sign = '+';}
 						else{sign = '-';}
-						rand_Y = Math.round(Math.random() * 15);
+						rand_Y = Math.round(Math.random() * 5);
 						rand = Math.round(Math.random() * 10001);
 						$(clouds[i][0]).animate(
 							{left:"+=156.25%"}, (12000 + rand), "linear",
@@ -29,7 +29,7 @@ var clouds = [
 						for(var i = 3; i < 6; ++i){
 							if(Math.round(Math.random())){sign = '+';}
 							else{sign = '-';}
-							rand_Y = Math.round(Math.random() * 15);
+							rand_Y = Math.round(Math.random() * 5);
 							rand = Math.round(Math.random() * 10001);
 							$(clouds[i][0]).animate(
 								{left:"+=156.25%"}, (12000 + rand), "linear",
@@ -43,7 +43,7 @@ var clouds = [
 							for(var i = 6; i < 9; ++i){
 								if(Math.round(Math.random())){sign = '+';}
 								else{sign = '-';}
-								rand_Y = Math.round(Math.random() * 15);
+								rand_Y = Math.round(Math.random() * 5);
 								rand = Math.round(Math.random() * 10001);
 								$(clouds[i][0]).animate(
 									{left:"+=156.25%"}, (12000 + rand), "linear",
@@ -71,7 +71,7 @@ var clouds = [
 									for(var i = 12; i < 15; ++i){
 										if(Math.round(Math.random())){sign = '+';}
 										else{sign = '-';}
-										rand_Y = Math.round(Math.random() * 15);
+										rand_Y = Math.round(Math.random() * 5);
 										rand = Math.round(Math.random() * 10001);
 										$(clouds[i][0]).animate(
 											{left:"+=156.25%"}, (12000 + rand), "linear",
@@ -146,25 +146,31 @@ var clouds = [
 	
 			function ChangePanels(curr_id, next_id){
 				RotateGears();
-				$('#' + curr_id).animate({left:"-=72%"}, (1060), "linear",function(){});
+				$('#' + curr_id).animate({left:"-=72%"}, (1060), "linear",function(){$(this).css("display", "none");});
+				$('#' + next_id).css("display", "block");
 				$('#' + next_id).animate({left:"-=72%"}, (1060), "linear",function(){});
 			}
 
-			$('#returning_btn').click(function(){ChangePanels("boxdiv1", "log_username");});
+			$('#returning_btn').click(function(){
+				ChangePanels("boxdiv1", "log_username");			
+			});
+
+			var password = "";
+			var uniqueid = "";
 
 			$('#login_usr_nextbtn').click(function(){
-				if($('#log_usr_in').val() == ""){
+				let username = $('#log_usr_in').val();
+				if(username == ""){
 					$('#err_p').text("Field can't be empty"); 
 					$('#err_p').css("display", "block");
 					return;
 				}
-				else if(($('#log_usr_in').val()).length > 16){
+				else if(username.length > 16){
 					$('#err_p').text("Max length: 16 characters"); 
 					$('#err_p').css("display", "block");
 					return;
 				}
 				else{
-					let username = $('#log_usr_in').val()
 					$.ajax({ 
 						type: 'POST',				
 						dataType: 'text',
@@ -181,7 +187,63 @@ var clouds = [
 						else{
 							$('#err_p').css("display", "none");
 							ChangePanels("log_username", "log_pass");
+							let index = 0;
+							while(response[index] != '-'){++index;}
+							++index;
+							while(response[index] != '-'){password += response[index]; ++index;}
+							++index;
+							while(index < response.length){uniqueid += response[index]; ++index;}
 						}
 					})
+				}
+			});
+
+			$('#login_pass_nextbtn').click(function(){
+				let inval = $('#log_pass_in').val();
+				if(inval == ""){
+					$('#err_p').text("Field can't be empty"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if(inval.length > 16){
+					$('#err_p').text("Max length: 16 characters"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if (inval != password){
+					$('#err_p').text("Incorrect password entered"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else{
+					$('#err_p').css("display", "none");
+					ChangePanels("log_pass", "log_uniqueid");
+					password = "";
+					return;
+				}
+			});
+
+			$('#login_uniqueid_nextbtn').click(function(){
+				let inval = $('#log_uniqueid_in').val();
+				if(inval == ""){
+					$('#err_p').text("Field can't be empty"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if(inval.length > 16){
+					$('#err_p').text("Max length: 16 characters"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if (inval != uniqueid){
+					$('#err_p').text("Incorrect unique ID entered"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else{
+					$('#err_p').css("display", "none");
+					ChangePanels("log_uniqueid", "dummy");
+					uniqueid = "";
+					return;
 				}
 			});
