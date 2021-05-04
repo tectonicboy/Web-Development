@@ -10,7 +10,7 @@ Frontend:
 
     - CSS
 
-    - Javascript + jQuery
+    - JavaScript + jQuery
 
     - AJAX for reloadless communication between user's browser and the web server.
 
@@ -20,4 +20,4 @@ Backend:
 
     - C++ + wxWidgets (for database system from scratch w/ a GUI)
 
-    - Sockets for local interprocess communications (between server and database) and internet communication (between user's browser and the web server).
+    - Sockets for local interprocess communications between web server and database system and internet communication between user's browser and the web server.
