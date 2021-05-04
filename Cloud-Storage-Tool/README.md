@@ -18,6 +18,6 @@ Backend:
 
     - C (for web server from scratch)
 
-    - C++ + wxWidgets (for database system w/ a GUI from scratch)
+    - C++ + wxWidgets (for database system from scratch w/ a GUI)
 
     - Sockets for local interprocess communications (between server and database) and internet communication (between user's browser and the web server).
