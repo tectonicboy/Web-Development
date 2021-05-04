@@ -1,14 +1,14 @@
-var rand = 0;
-var rand_Y = 0;
-var sign = '+';
-var t1; var t2; var t3; var t4;
-var clouds = [
-		[$('#cloud_1'), $('#cloud_1').css("left")], [$('#cloud_2'), $('#cloud_2').css("left")], [$('#cloud_3'), $('#cloud_3').css("left")],
-		[$('#cloud_4'), $('#cloud_4').css("left")], [$('#cloud_5'), $('#cloud_5').css("left")], [$('#cloud_6'), $('#cloud_6').css("left")],
-		[$('#cloud_7'), $('#cloud_7').css("left")], [$('#cloud_8'), $('#cloud_8').css("left")], [$('#cloud_9'), $('#cloud_9').css("left")],
-		[$('#cloud_10'), $('#cloud_10').css("left")], [$('#cloud_11'), $('#cloud_11').css("left")], [$('#cloud_12'), $('#cloud_12').css("left")],
-		[$('#cloud_13'), $('#cloud_13').css("left")], [$('#cloud_14'), $('#cloud_14').css("left")], [$('#cloud_15'), $('#cloud_15').css("left")]
-	     ];
+		var rand = 0;
+		var rand_Y = 0;
+		var sign = '+';
+		var t1; var t2; var t3; var t4;
+		var clouds = [
+				[$('#cloud_1'), $('#cloud_1').css("left")], [$('#cloud_2'), $('#cloud_2').css("left")], [$('#cloud_3'), $('#cloud_3').css("left")],
+				[$('#cloud_4'), $('#cloud_4').css("left")], [$('#cloud_5'), $('#cloud_5').css("left")], [$('#cloud_6'), $('#cloud_6').css("left")],
+				[$('#cloud_7'), $('#cloud_7').css("left")], [$('#cloud_8'), $('#cloud_8').css("left")], [$('#cloud_9'), $('#cloud_9').css("left")],
+				[$('#cloud_10'), $('#cloud_10').css("left")], [$('#cloud_11'), $('#cloud_11').css("left")], [$('#cloud_12'), $('#cloud_12').css("left")],
+				[$('#cloud_13'), $('#cloud_13').css("left")], [$('#cloud_14'), $('#cloud_14').css("left")], [$('#cloud_15'), $('#cloud_15').css("left")]
+	     		     ];
 		
 			function AnimateClouds(){
 				if(!document.hidden){
@@ -155,6 +155,14 @@ var clouds = [
 				ChangePanels("boxdiv1", "log_username");			
 			});
 
+			$('#new_btn').click(function(){
+				ChangePanels("boxdiv1", "reg_username");
+			});
+
+			$('#reg_uniqueid_nextbtn').click(function(){
+				ChangePanels("reg_uniqueid", "log_username");
+			});
+
 			var password = "";
 			var uniqueid = "";
 
@@ -245,5 +253,80 @@ var clouds = [
 					ChangePanels("log_uniqueid", "dummy");
 					uniqueid = "";
 					return;
+				}
+			});
+
+			var new_username;
+			var new_password;
+			var new_uniqueid;
+			$('#reg_username_nextbtn').click(function(){
+				let inval = $('#reg_username_in').val();
+				if(inval == ""){
+					$('#err_p').text("Field can't be empty"); 
+					$('#err_p').css("display", "block");
+					return;					
+				}
+				else if(inval.length > 16){
+					$('#err_p').text("Max length: 16 characters");
+					$('#err_p').css("display","block");
+					return;
+				}
+				else{
+					$.ajax({ 
+						type: 'POST',				
+						dataType: 'text',
+						data: { 
+							action : "B",
+							username : inval
+						}
+					})
+					.done(function(response) {
+					    	if(response == 'no'){
+							$('#err_p').css("display", "none");
+							ChangePanels("reg_username", "reg_password");
+							new_username = inval;
+							return;
+						}
+						else{
+							$('#err_p').text("This username is taken"); 
+							$('#err_p').css("display", "block");
+							return;
+						}
+					})
+				}
+			});
+
+			$('#reg_password_nextbtn').click(function(){
+				let inval = $('#reg_password_in').val();
+				if(inval == ""){
+					$('#err_p').text("Field can't be empty"); 
+					$('#err_p').css("display", "block");
+					return;					
+				}
+				else if(inval.length < 6){
+					$('#err_p').text("Min length: 6 characters");
+					$('#err_p').css("display","block");
+					return;					
+				}
+				else if(inval.length > 16){
+					$('#err_p').text("Max length: 16 characters");
+					$('#err_p').css("display","block");
+					return;
+				}
+				else{
+					$.ajax({ 
+						type: 'POST',				
+						dataType: 'text',
+						data: { 
+							action : "C",
+							username : new_username,
+							password : inval
+						}
+					})
+					.done(function(response) {
+						new_password = inval;
+					    	new_uniqueid = response;
+						ChangePanels("reg_password", "reg_uniqueid");
+					})
 				}
 			});
