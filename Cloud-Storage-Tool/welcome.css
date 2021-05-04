@@ -1,21 +1,58 @@
 			body{
 				overflow-x: hidden;
+				overflow-y: hidden;
+				background-color:rgb(191, 244, 255);
 			}
-			.btn{
-				background-color:azure;
-				height:30px;
-				width:100px;
-				font-size:14px;
+			.in{
+				background-color:rgb(58, 58, 207);
+				font-size:16px;
 				text-align:center;
-				border: ridge 2px blue;
-				border-radius:20%;
+				border: ridge 2px rgb(163, 255, 214);
+				border-radius:5%;
 				font-family: "Orbitron";
-				padding-top:5px;
+				color:rgb(255, 145, 188);
+				height:15%;
+				width:70%;
+				position:absolute;
+				top:25%;
+				left:15%;
+			}
+
+			.in:focus{
+				outline:none;
+			}			
+			
+			.btn{
+				background-color:rgb(58, 58, 207);
+				font-size:16px;
+				text-align:center;
+				border: ridge 2px rgb(163, 255, 214);
+				border-radius:5%;
+				font-family: "Orbitron";
+				padding:10 85 10 85;
+				color:rgb(255, 145, 188);
+				position:absolute;
 			}
 			
+			.btn:hover{
+				cursor:pointer;
+				background-color:rgb(28, 255, 160);
+				color:rgb(58, 58, 207);
+			}
+
+			#new_btn{
+				top:30%;
+				left:23%;
+			}
+			#returning_btn{
+				top:55%;
+				left:23%;
+				padding:10 60 10 60;
+			}
+	
 			#gear_big{
 				position:absolute;
-				top:500px;
+				top:59.55%;
 				left:10px;
 				width:300px;
 				height:300px;
@@ -23,7 +60,7 @@
 			
 			#gear_small{
 				position:absolute;
-				top:500px;
+				top:59.55%;
 				left:296px;
 				width:150px;
 				height:150px;
@@ -37,4 +74,64 @@
 				background-color:rgb(52, 195, 235);
 				opacity:0.8;
 				left:-20px;
+			}
+
+			.boxdiv{
+				width:25%;
+				height:25%;
+				position:absolute;
+				top:36%;
+				border: ridge 15px cyan;
+				border-radius:5%;
+				background-color: rgb(155, 133, 242);
+				color:rgb(0, 255, 255);
+				padding: 5px 5px;
+				font-size:24;
+				font-family: "Orbitron";
+				text-align: center;
+			}
+	
+			#boxdiv1{
+				left:38%;
+			}
+
+			#log_username{
+				left:110%;
+			}
+
+			#log_pass{
+				display:none;
+				left:110%;
+			}
+
+			#log_uniqueid{
+				display:none;
+				left:110%;
+			}
+
+			.next_btn{
+				height:50; 
+				width:50; 
+				position:absolute;
+				top:48%;
+				left:50%;
+			}
+
+			.next_btn:hover{
+				cursor:pointer;
+			}
+
+			#err_p{
+				position:absolute;
+				color:red;
+				font-family:"Orbitron";
+				text-align:center;
+				font-size:20;
+				height:30;
+				width:400;
+				top:56%;
+				left:41%;
+				background-color:rgb(255, 184, 207);
+				border: ridge 4px red;
+				display: none;
 			}
