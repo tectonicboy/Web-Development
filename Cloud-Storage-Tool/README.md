@@ -8,7 +8,7 @@ Frontend:
     - HTML
     - CSS
     - Javascript + jQuery
-    - AJAX for reloadless communication between user's browser and the web server
+    - AJAX for reloadless communication between user's browser and the web server.
 
 Backend:
     - C (for web server from scratch)
