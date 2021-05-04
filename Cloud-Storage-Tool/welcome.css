@@ -109,6 +109,22 @@
 				left:110%;
 			}
 
+			#reg_username{
+				display:none;
+				left:110%;
+			}
+
+			#reg_password{
+				display:none;
+				left:110%;
+			}	
+
+			#reg_uniqueid{
+				display:none;
+				left:110%;
+				font-size:16;
+				color:blue;
+			}
 			.next_btn{
 				height:50; 
 				width:50; 
