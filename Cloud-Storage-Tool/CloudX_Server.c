@@ -109,31 +109,38 @@ unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables
 	return i;
 }
 
-void Generate_SQL_Command(char* vars){
+void Generate_SQL_Command(char* vars, char* buf){
 	unsigned pos = 2;
 	switch(vars[0]){
 		case 'A':{
-			char *socket_path = "\0hidden";
-			char buf[128] = "CloudX_DB-CHECK-Users-name-";
+			strcat(buf, "CloudX_DB-CHECK-Users-name-");
 			while(vars[pos] != '\n'){
-				buf[pos - 2 + 27] = vars[pos]; 
+				buf[(pos - 2) + 27] = vars[pos]; 
 				++pos;
 			}
-			buf[pos - 2 + 27] = '\0';
+			strcat(buf, "-pass-unique_num");
+			buf[(pos - 2) + 48] = '\0';
 			printf("Constructed the following custom SQL command: %s\n", buf);
-			
+
+			char *socket_path = "\0hidden";
 			int fd = socket(AF_UNIX, SOCK_STREAM, 0);
 			struct sockaddr_un addr;
 			memset(&addr, 0x0, sizeof(addr));
 			addr.sun_family = AF_UNIX;
 			*addr.sun_path = '\0';
 			strncpy(addr.sun_path+1, socket_path+1, sizeof(addr.sun_path)-2);
+
 			connect(fd, (struct sockaddr*)&addr, sizeof(addr));
+
 			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, sizeof(buf));
-			read(fd, buf, sizeof(buf));
+
+			memset(buf, 0x0, 128);
+
+			read(fd, buf, 128);
+
 			printf("The database system sent the following answer: %s\n", buf);
 			close(fd);
+
 			break;
 		}
 		default:{
@@ -180,7 +187,6 @@ int main(){
 	listen(server_socket, 16);
 
 	//Declarations for serving loop
-	FILE *response;
 	unsigned servervars_start_i;
 	struct sockaddr_in client_address;
     	int client_socket, sent;
@@ -188,17 +194,20 @@ int main(){
     	u_int32_t imageResponseLen;
    	size_t k, db_response_siz;
 	char *serverside_variables, *requested_fname, *client_message, *db_response;
-	if(memalign((void*)&serverside_variables, 64, 256) || memalign((void*)&requested_fname, 64, 64) || memalign((void*)&client_message, 64, 2048)){return 0;}
+	if(memalign((void*)&serverside_variables, 64, 256) || memalign((void*)&requested_fname, 64, 64) 
+	   || memalign((void*)&client_message, 64, 2048) || memalign((void*)&db_response, 64, 128))
+	{return 0;}
 
 	//Serving loop
 	while(1){
 		//Reset stuff.
 		sent = 0; k = 5;
-		memset(serverside_variables, 0x0, 256); memset(requested_fname, 0x0, 64); memset(client_message, 0x0, 2048);
+		memset(serverside_variables, 0x0, 256); memset(requested_fname, 0x0, 64); 
+		memset(client_message, 0x0, 2048); memset(db_response, 0x0, 128);
 		
 		printf("Listening for HTTP requests on port %d...\n", port);
 		client_socket = accept(server_socket, (struct sockaddr*)&client_address, &clientLen);
-		if(recv(client_socket, client_message, 2048, 0) == -1){printf("Fault while receiving an HTTP request.\n"); break;}
+		if(recv(client_socket, client_message, 2048, 0) == -1){printf("Fault while receiving an HTTP request.\n"); continue;}
 		printf("Received an HTTP request of size %lu\n\n%s", strlen(client_message), client_message);
 
 		while(!(client_message[k+1] == 72 && client_message[k+2] == 84 && client_message[k+3] == 84 && client_message[k+4] == 80)){
@@ -225,13 +234,11 @@ int main(){
 
 		servervars_start_i = Extract_HTTP_Variables(client_message, serverside_variables);
 		if(servervars_start_i < 2048){
-			Generate_SQL_Command(serverside_variables);
-			usleep(0.3 * TIME_SECOND);
-			db_response_siz = ReadFile("response.txt", &db_response,"r");
+			Generate_SQL_Command(serverside_variables, db_response);
+			db_response_siz = strlen(db_response);
 			printf("About to send back the following string: %s\n", db_response);
-			if(send(client_socket, db_response, db_response_siz, 0) < 0){printf("firstpage code send fail\n");}
+			if(send(client_socket, db_response, db_response_siz, 0) < 0){printf("db response send fail\n");}
 			else{printf("Sent db response successfully.\n"); sent = 1;}
-			free(db_response);
 		}
 
         	if(!sent){
