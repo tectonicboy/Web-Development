@@ -192,8 +192,8 @@ u_int32_t Create_HTTPsend_Filebuf(char* fname, char* ftype, char* mode, char** b
 }
 
 int main(){
-	char *cloudimg_name="resources/cloud.svg", *gearimg_name="resources/gear.svg", *favico_name="resources/favicon.ico", *firstpage_name = "index.html";
-	char *jpgtype="image/jpg", *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html";
+	char *cloudimg_name="resources/cloud.svg", *gearimg_name="resources/gear.svg", *favico_name="resources/favicon.ico", *firstpage_name = "index.html",
+	     *jpgtype="image/jpg", *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html";
 
 	char *cloudimg_response_buf, *gearimg_response_buf, *favico_response_buf, *firstpage_response_buf;
 	size_t cloudimg_resp_buf_siz = Create_HTTPsend_Filebuf(cloudimg_name, svgtype, "rb", &cloudimg_response_buf),
