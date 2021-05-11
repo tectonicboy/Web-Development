@@ -11,6 +11,7 @@
 
 #define memalign posix_memalign
 #define TIME_SECOND 1000000
+#define SITE_FILES 5
 
 long long hexdec(char first, char second){
 	char hex[3];
@@ -35,7 +36,7 @@ long long hexdec(char first, char second){
 		else if(hex[i]>='A' && hex[i]<='F'){
 			val = hex[i] - 65 + 10;
 		}
-		decimal += val * pow(16, len);
+		decimal += (val << (len << 2));
 		len--;
 	}
 	return decimal;
@@ -43,30 +44,29 @@ long long hexdec(char first, char second){
 
 size_t ReadFile(char* filePath, char** buffer, char* mode) {
     	FILE *fd = fopen(filePath, mode);
+    	if (!fd) {
+        	printf("Couldn't open file\n");
+        	return 0;
+    	}
+    	fseek(fd, 0, SEEK_END);
+    	size_t numBytes = ftell(fd);
+    	printf("Read the file %s, and its size in bytes is: %lu\n", filePath, numBytes);
+    	fseek(fd, 0, SEEK_SET);
 
-    if (!fd) {
-        printf("Couldn't open file\n");
-        return 0;
-    }
-    fseek(fd, 0, SEEK_END);
-    size_t numBytes = ftell(fd);
-    printf("Read the file %s, and its size in bytes is: %lu\n", filePath, numBytes);
-    fseek(fd, 0, SEEK_SET);
+    	if (numBytes == 0) {
+        	fclose(fd);
+        	printf("File is empty:\t%s\n", "multiline_file.txt");
+        	return 0;
+    	}
 
-    if (numBytes == 0) {
-        fclose(fd);
-        printf("File is empty:\t%s\n", "multiline_file.txt");
-        return 0;
-    }
+    	*buffer = calloc(1, numBytes);
+    	assert(*buffer);
 
-    *buffer = calloc(1, numBytes);
-    assert(*buffer);
+    	int read = fread(*buffer, numBytes, 1, fd);
+    	assert(read);
+    	fclose(fd);
 
-    int read = fread(*buffer, numBytes, 1, fd);
-    assert(read);
-    fclose(fd);
-
-    return numBytes;
+    	return numBytes;
 }
 
 unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables){
@@ -111,7 +111,7 @@ unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables
 
 void Generate_SQL_Command(char* vars, char* buf){
 	unsigned pos = 2;
-	char *socket_path = "\0hidden";
+	char* socket_path = "\0hidden";
 	int fd = socket(AF_UNIX, SOCK_STREAM, 0);
 	struct sockaddr_un addr;
 	memset(&addr, 0x0, sizeof(addr));
@@ -152,9 +152,12 @@ void Generate_SQL_Command(char* vars, char* buf){
 			++pos;
 			time_t t;
 		   	srand((unsigned) time(&t));
-			char* db_uniqueid;
-			memalign((void*)&db_uniqueid, 64, 6);
-			for(size_t i = 0; i < 6; ++i){db_uniqueid[i] = ((rand() % 56) + 40);}
+			unsigned char num_or_letter = round(rand() % 2), r1, r2;
+			if(!num_or_letter){r1 = 48; r2 = 57;}
+			else{r1 = 97; r2 = 122;}
+			char db_uniqueid[7];
+			for(size_t i = 0; i < 6; ++i){db_uniqueid[i] = (r1 + (rand() % (r2 - r1)));}
+			db_uniqueid[6] = '\0';
 			strcat(buf, db_uniqueid);
 			strcat(buf, "-0-0.0.0");			
 			printf("Constructed the following custom SQL command: %s\n", buf);
@@ -177,29 +180,38 @@ u_int32_t Create_HTTPsend_Filebuf(char* fname, char* ftype, char* mode, char** b
     	char* fbuf;
     	size_t fsiz = ReadFile(fname, &fbuf, mode);
    	char* fullHeader;
-
    	asprintf(&fullHeader, "%s %s\r\n%s %lu\r\n\n", http_header, ftype, cont_len, fsiz);
-
     	*buf = calloc(1, (strlen(fullHeader) + fsiz));
-
     	memcpy(*buf, fullHeader, strlen(fullHeader));
     	memcpy(*buf + strlen(fullHeader), fbuf, fsiz);
-
 	u_int32_t bufsiz = strlen(fullHeader) + fsiz;
-
     	free(fullHeader);
 	return bufsiz;
 }
 
-int main(){
-	char *cloudimg_name="resources/cloud.svg", *gearimg_name="resources/gear.svg", *favico_name="resources/favicon.ico", *firstpage_name = "index.html",
-	     *jpgtype="image/jpg", *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html";
+struct site_file{
+	char* fname;
+	char* ftype;
+	char* fmode;
+	char* fbuf;	
+	u_int32_t fsize;
+};
 
-	char *cloudimg_response_buf, *gearimg_response_buf, *favico_response_buf, *firstpage_response_buf;
-	size_t cloudimg_resp_buf_siz = Create_HTTPsend_Filebuf(cloudimg_name, svgtype, "rb", &cloudimg_response_buf),
-	       gearimg_response_buf_siz = Create_HTTPsend_Filebuf(gearimg_name, svgtype, "rb", &gearimg_response_buf),
-	       favico_response_buf_siz = Create_HTTPsend_Filebuf(favico_name, icotype, "rb", &favico_response_buf),
-	       firstpage_buf_siz = Create_HTTPsend_Filebuf(firstpage_name, htmltype, "r", &firstpage_response_buf); 
+int main(){
+	char *jpgtype="image/jpg", *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html";
+
+	//Add website files
+	struct site_file f1 = {.fname = "index.html", .ftype = htmltype, .fmode = "r"}, 
+			 f2 = {.fname = "resources/cloud.svg", .ftype = svgtype, .fmode = "rb"},
+			 f3 = {.fname = "resources/gear.svg", .ftype = svgtype, .fmode = "rb"},
+			 f4 = {.fname = "resources/favicon.ico", .ftype = icotype, .fmode = "rb"},
+			 f5 = {.fname = "resources/user.svg", .ftype = svgtype, .fmode = "rb"};
+	struct site_file** site_files;
+	if(memalign((void*)&site_files, 64, 24*sizeof(struct site_file*))){printf("mem err\n"); return 0;}
+	site_files[0] = &f1; site_files[1] = &f2; site_files[2] = &f3; site_files[3] = &f4; site_files[4] = &f5;
+	for(size_t i = 0; i < SITE_FILES; ++i){
+		site_files[i]->fsize = Create_HTTPsend_Filebuf(site_files[i]->fname, site_files[i]->ftype, site_files[i]->fmode, &site_files[i]->fbuf);
+	}
 
 	//Create the server socket, bind a name to it and make it listen on port 80
 	int port = 80, server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -217,7 +229,7 @@ int main(){
 	char *serverside_variables, *requested_fname, *client_message, *db_response;
 	if(memalign((void*)&serverside_variables, 64, 256) || memalign((void*)&requested_fname, 64, 64) 
 	   || memalign((void*)&client_message, 64, 2048) || memalign((void*)&db_response, 64, 128))
-	{return 0;}
+	{printf("mem alloc fail\n"); return 0;}
 
 	//Serving loop
 	while(1){
@@ -225,12 +237,11 @@ int main(){
 		sent = 0; k = 5;
 		memset(serverside_variables, 0x0, 256); memset(requested_fname, 0x0, 64); 
 		memset(client_message, 0x0, 2048); memset(db_response, 0x0, 128);
-		
 		printf("Listening for HTTP requests on port %d...\n", port);
 		client_socket = accept(server_socket, (struct sockaddr*)&client_address, &clientLen);
 		if(recv(client_socket, client_message, 2048, 0) == -1){printf("Fault while receiving an HTTP request.\n"); continue;}
 		printf("Received an HTTP request of size %lu\n\n%s", strlen(client_message), client_message);
-
+		//Extract requested file's name if there's one.
 		while(!(client_message[k+1] == 72 && client_message[k+2] == 84 && client_message[k+3] == 84 && client_message[k+4] == 80)){
 			requested_fname[k-5] = client_message[k];
 			++k;
@@ -238,18 +249,13 @@ int main(){
 		}
 		if(*requested_fname){
 			printf("\nThe client requested a file called: %s\n", requested_fname);
-			if(!strcmp(cloudimg_name, requested_fname)){
-				if(send(client_socket, cloudimg_response_buf, cloudimg_resp_buf_siz, 0) < 0){printf("cloudimg send fail\n");}
-				else{printf("Sent file %s to the client successfully!\n", cloudimg_name); sent = 1;}
-			}
-			else if(!strcmp(gearimg_name, requested_fname)){
-				if(send(client_socket, gearimg_response_buf, gearimg_response_buf_siz, 0) < 0){printf("gearimg send fail\n");}
-				else{printf("Sent file %s to the client successfully!\n", gearimg_name); sent = 1;}
-			}
-			else if(!strcmp(favico_name, requested_fname)){
-				if(send(client_socket, favico_response_buf, favico_response_buf_siz, 0) < 0){printf("favico send fail");}
-				else{printf("Sent file %s to the client successfully\n", favico_name); sent = 1;}
-			}
+			for(size_t i = 1; i < SITE_FILES; ++i){
+				if(!strcmp(site_files[i]->fname, requested_fname)){
+					if(send(client_socket, site_files[i]->fbuf, site_files[i]->fsize, 0) < 0){printf("file send fail\n");}
+					else{printf("Sent file %s to the client successfully!\n", site_files[i]->fname); sent = 1;}					
+				}
+			} 
+			
 		}
 		printf("After dealing with requested file name, sent = %d\n", sent);
 
@@ -264,12 +270,11 @@ int main(){
 
         	if(!sent){
 			printf("About to send webpage code.\n\n");
-			if(send(client_socket, firstpage_response_buf, firstpage_buf_siz, 0) < 0){printf("firstpage code send fail\n");}
+			memset(site_files[0]->fbuf, 0x0, site_files[0]->fsize);
+			site_files[0]->fsize = Create_HTTPsend_Filebuf(site_files[0]->fname, site_files[0]->ftype, site_files[0]->fmode, &(site_files[0]->fbuf)); 
+			if(send(client_socket, site_files[0]->fbuf, site_files[0]->fsize, 0) < 0){printf("firstpage code send fail\n");}
 		}
 		close(client_socket);
 	}	
-
-
-
 	return 0;
 }
