@@ -6,8 +6,8 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
 #include <sys/un.h>
+#include <netinet/in.h>
 
 #define memalign posix_memalign
 #define TIME_SECOND 1000000
