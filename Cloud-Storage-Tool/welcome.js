@@ -1,4 +1,4 @@
-var rand = 0;
+		var rand = 0;
 		var rand_Y = 0;
 		var sign = '+';
 		var t1; var t2; var t3; var t4;
@@ -36,14 +36,14 @@ var rand = 0;
 			}
 			var hidden = false;
 			$(window).on("load", function(){
+				
+				document.body.style.zoom = "100%";
 				AnimateClouds();
 				var cloud_animation = setInterval(function(){AnimateClouds();}, 25500);
 				setInterval(function(){
 					if((document.hidden) && (hidden == false)){
 						hidden = true;
 						clearInterval(cloud_animation);
-						//clearTimeout(t1); clearTimeout(t2);
-						//clearTimeout(t3); clearTimeout(t4);
 						for(var x = 0; x < 4; ++x){
 							clearTimeout(timeouts[x]);
 						}
@@ -58,6 +58,12 @@ var rand = 0;
 						cloud_animation = setInterval(function(){AnimateClouds();}, 25500);
 					}
 				},500);	
+			});
+
+			$(window).resize(function(){
+				let wid_big = $('#gear_big').css("width");
+				$('#gear_big').css('height', wid_big);
+				$('#gear_small').css('height', (wid_big/2));
 			});
 			
 			var times = 0;
@@ -93,116 +99,24 @@ var rand = 0;
 				}
 			}
 	
-			function ChangePanels(curr_id, next_id){
+			function ChangePanels(curr_id, next_id, sign){
 				RotateGears();
-				$('#' + curr_id).animate({left:"-=72%"}, (1060), "linear",function(){$(this).css("display", "none");});
+				$('#' + curr_id).animate({left: sign + "=72%"}, (1060), "linear",function(){$(this).css("display", "none");});
 				$('#' + next_id).css("display", "block");
-				$('#' + next_id).animate({left:"-=72%"}, (1060), "linear",function(){});
+				$('#' + next_id).animate({left: sign + "=72%"}, (1060), "linear",function(){});
 			}
 
+
 			$('#returning_btn').click(function(){
-				ChangePanels("boxdiv1", "log_username");			
+				ChangePanels("boxdiv1", "log_username", "-");			
 			});
 
 			$('#new_btn').click(function(){
-				ChangePanels("boxdiv1", "reg_username");
+				ChangePanels("boxdiv1", "reg_username", "-");
 			});
 
 			$('#reg_uniqueid_nextbtn').click(function(){
-				ChangePanels("reg_uniqueid", "log_username");
-			});
-
-			var password = "";
-			var uniqueid = "";
-
-			$('#login_usr_nextbtn').click(function(){
-				let username = $('#log_usr_in').val();
-				if(username == ""){
-					$('#err_p').text("Field can't be empty"); 
-					$('#err_p').css("display", "block");
-					return;
-				}
-				else if(username.length > 16){
-					$('#err_p').text("Max length: 16 characters"); 
-					$('#err_p').css("display", "block");
-					return;
-				}
-				else{
-					$.ajax({ 
-						type: 'POST',				
-						dataType: 'text',
-						data: { 
-							action : "A",
-							username : username
-						}
-					})
-					.done(function(response) {
-					    	if(response == 'no'){
-							$('#err_p').text("The username doesn't exist."); 
-							$('#err_p').css("display", "block");
-						}
-						else{
-							$('#err_p').css("display", "none");
-							ChangePanels("log_username", "log_pass");
-							let index = 0;
-							while(response[index] != '-'){++index;}
-							++index;
-							while(response[index] != '-'){password += response[index]; ++index;}
-							++index;
-							while(index < response.length){uniqueid += response[index]; ++index;}
-						}
-					})
-				}
-			});
-
-			$('#login_pass_nextbtn').click(function(){
-				let inval = $('#log_pass_in').val();
-				if(inval == ""){
-					$('#err_p').text("Field can't be empty"); 
-					$('#err_p').css("display", "block");
-					return;
-				}
-				else if(inval.length > 16){
-					$('#err_p').text("Max length: 16 characters"); 
-					$('#err_p').css("display", "block");
-					return;
-				}
-				else if (inval != password){
-					$('#err_p').text("Incorrect password entered"); 
-					$('#err_p').css("display", "block");
-					return;
-				}
-				else{
-					$('#err_p').css("display", "none");
-					ChangePanels("log_pass", "log_uniqueid");
-					password = "";
-					return;
-				}
-			});
-
-			$('#login_uniqueid_nextbtn').click(function(){
-				let inval = $('#log_uniqueid_in').val();
-				if(inval == ""){
-					$('#err_p').text("Field can't be empty"); 
-					$('#err_p').css("display", "block");
-					return;
-				}
-				else if(inval.length > 16){
-					$('#err_p').text("Max length: 16 characters"); 
-					$('#err_p').css("display", "block");
-					return;
-				}
-				else if (inval != uniqueid){
-					$('#err_p').text("Incorrect unique ID entered"); 
-					$('#err_p').css("display", "block");
-					return;
-				}
-				else{
-					$('#err_p').css("display", "none");
-					ChangePanels("log_uniqueid", "dummy");
-					uniqueid = "";
-					return;
-				}
+				ChangePanels("reg_uniqueid", "log_username", "-");
 			});
 
 			var new_username;
@@ -225,14 +139,14 @@ var rand = 0;
 						type: 'POST',				
 						dataType: 'text',
 						data: { 
-							action : "B",
+							action : "A",
 							username : inval
 						}
 					})
 					.done(function(response) {
 					    	if(response == 'no'){
 							$('#err_p').css("display", "none");
-							ChangePanels("reg_username", "reg_password");
+							ChangePanels("reg_username", "reg_password", "-");
 							new_username = inval;
 							return;
 						}
@@ -273,9 +187,126 @@ var rand = 0;
 						}
 					})
 					.done(function(response) {
+						$('#err_p').css("display","none");						
 						new_password = inval;
 					    	new_uniqueid = response;
-						ChangePanels("reg_password", "reg_uniqueid");
+						ChangePanels("reg_password", "reg_uniqueid", "-");
 					})
 				}
+			});
+			var password = "";
+			var uniqueid = "";
+
+			$('#login_usr_nextbtn').click(function(){
+				let username = $('#log_usr_in').val();
+				if(username == ""){
+					$('#err_p').text("Field can't be empty"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if(username.length > 16){
+					$('#err_p').text("Max length: 16 characters"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else{
+					$.ajax({ 
+						type: 'POST',				
+						dataType: 'text',
+						data: { 
+							action : "A",
+							username : username
+						}
+					})
+					.done(function(response) {
+					    	if(response == 'no'){
+							$('#err_p').text("The username doesn't exist."); 
+							$('#err_p').css("display", "block");
+						}
+						else{
+							$('#err_p').css("display", "none");
+							ChangePanels("log_username", "log_pass", "-");
+							let index = 0;
+							while(response[index] != '-'){++index;}
+							++index;
+							while(response[index] != '-'){password += response[index]; ++index;}
+							++index;
+							while(index < response.length){uniqueid += response[index]; ++index;}
+						}
+					})
+				}
+			});
+
+			$('#login_pass_nextbtn').click(function(){
+				let inval = $('#log_pass_in').val();
+				if(inval == ""){
+					$('#err_p').text("Field can't be empty"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if(inval.length > 16){
+					$('#err_p').text("Max length: 16 characters"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if (inval != password){
+					$('#err_p').text("Incorrect password entered"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else{
+					$('#err_p').css("display", "none");
+					ChangePanels("log_pass", "log_uniqueid", "-");
+					password = "";
+					return;
+				}
+			});
+
+			$('#login_uniqueid_nextbtn').click(function(){
+				let inval = $('#log_uniqueid_in').val();
+				if(inval == ""){
+					$('#err_p').text("Field can't be empty"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if(inval.length > 16){
+					$('#err_p').text("Max length: 16 characters"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else if (inval != uniqueid){
+					$('#err_p').text("Incorrect unique ID entered"); 
+					$('#err_p').css("display", "block");
+					return;
+				}
+				else{
+					$('#err_p').css("display", "none");
+					ChangePanels("log_uniqueid", "mainpage", "-");
+					uniqueid = "";
+					return;
+				}
+			});
+
+			$('#usr_options_btn').click(function(){
+				ChangePanels("mainpage", "usr_options", "-");
+			});
+
+			$('#changename').click(function(){
+				$('#usr_setting_in').attr('type', 'text');
+				$('#usr_setting_in').attr('placeholder', 'username');
+				$('#usr_setting_in').val("");
+			});
+
+			$('#changepass').click(function(){
+				$('#usr_setting_in').attr('type', 'password');
+				$('#usr_setting_in').attr('placeholder', 'password');
+				$('#usr_setting_in').val("");
+			});
+
+			$('#deleteacc').click(function(){
+				
+			});
+
+			$('#usr_options_backbtn').click(function(){
+				ChangePanels("usr_options", "mainpage", "+");
 			});
