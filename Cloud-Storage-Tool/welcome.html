@@ -10,8 +10,7 @@
 	</head>
 
 
-	<body>
-		<p style="font-size:100;position:absolute;top:-100px;left:20px;font-family:'Orbitron';color:rgb(141, 107, 227);">CloudX</p>
+	<body><p style="font-size:100;position:absolute;top:-100px;left:20px;font-family:'Orbitron';color:rgb(141, 107, 227);">CloudX</p>
 	
 		<img src="resources/cloud.svg" id="cloud_1" style="opacity:0.6;height:70px;width:70px;position:absolute;top:9.26%;left:-150px;">
 		<img src="resources/cloud.svg" id="cloud_2" style="opacity:0.6;height:130px;width:130px;position:absolute;top:0.92%;left:-450px;">
@@ -51,7 +50,7 @@
 
 		<div id="log_pass" class="boxdiv">
 			Enter your CloudX password
-			<input type="text" placeholder="password" class="in" id="log_pass_in">
+			<input type="password" placeholder="password" class="in" id="log_pass_in">
 			<svg id="login_pass_nextbtn" class="next_btn">
 				<polyline points="0,0 25,25 0,50" style="fill:none;stroke:rgb(0, 247, 255);stroke-width:3"/>
 			</svg>
@@ -75,7 +74,7 @@
 
 		<div id="reg_password" class="boxdiv">
 			Enter a new CloudX password
-			<input type="text" placeholder="new password" class="in" id="reg_password_in">
+			<input type="password" placeholder="new password" class="in" id="reg_password_in">
 			<svg id="reg_password_nextbtn" class="next_btn">
 				<polyline points="0,0 25,25 0,50" style="fill:none;stroke:rgb(0,247,255);stroke-width:3"/>
 			</svg>
@@ -87,9 +86,40 @@
 				<polyline points="0,0 25,25 0,50" style="fill:none;stroke:rgb(0,247,255);stroke-width:3"/>
 			</svg>
 		</div>
+	
+		<div id="mainpage" class="boxdiv" style="padding-top:0px;">
+			<div id="usr_options_btn" class="options_div" style="margin-left:24%;">
+				<img src="resources/user.svg" style="position:relative;width:20%;height:100%;">
+				<img src="resources/gearicon.svg" style="position:relative;width:20%;height:100%;">
+				<img src="resources/tick.svg" style="position:relative;width:20%;height:100%;">
+			</div>
+			<div id="upload_btn" class="options_div" style="margin-left:24%;">
+				<img src="resources/file.svg" style="position:relative;width:20%;height:100%;">
+				<img src="resources/upload.svg" style="position:relative;width:20%;height:100%;">
+				<img src="resources/dbadd.svg" style="position:relative;width:20%;height:100%;">
+			</div>
+			<div id="download_btn" class="options_div" style="margin-left:24%;">
+				<img src="resources/file.svg" style="position:relative;width:20%;height:100%;">
+				<img src="resources/download.svg" style="position:relative;width:20%;height:100%;">
+				<img src="resources/dbremove.svg" style="position:relative;width:20%;height:100%;">
+			</div>
+		</div>
 
-
-		<div id="dummy"></div>
+		<div id="usr_options" class="boxdiv">
+			<div id="changename" class="usr_option_div">
+				Change Username
+			</div>
+			<div id="changepass" class="usr_option_div">
+				Change Password
+			</div>
+			<div id="deleteacc" class="usr_option_div">
+				Delete Account
+			</div>
+			<input type="text" placeholder="new username" id="usr_setting_in">
+			<svg id="usr_options_backbtn" class="back_btn">				
+				<polyline points="30,0 5,25 30,50" style="fill:none;stroke:rgb(0,247,255);stroke-width:3;"/>
+			</svg>
+		</div>
 
 
 		<p id="err_p">Errors displayed here.</p>
