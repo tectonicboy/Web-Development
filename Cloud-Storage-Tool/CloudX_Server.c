@@ -11,7 +11,7 @@
 
 #define memalign posix_memalign
 #define TIME_SECOND 1000000
-#define SITE_FILES 5
+#define SITE_FILES 12
 
 long long hexdec(char first, char second){
 	char hex[3];
@@ -198,17 +198,19 @@ struct site_file{
 };
 
 int main(){
-	char *jpgtype="image/jpg", *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html";
+	char *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html", *pngtype = "image/png", *jpgtype = "image/jpg";
 
 	//Add website files
-	struct site_file f1 = {.fname = "index.html", .ftype = htmltype, .fmode = "r"}, 
-			 f2 = {.fname = "resources/cloud.svg", .ftype = svgtype, .fmode = "rb"},
-			 f3 = {.fname = "resources/gear.svg", .ftype = svgtype, .fmode = "rb"},
-			 f4 = {.fname = "resources/favicon.ico", .ftype = icotype, .fmode = "rb"},
-			 f5 = {.fname = "resources/user.svg", .ftype = svgtype, .fmode = "rb"};
+	struct site_file f1 = {.fname = "index.html", .ftype = htmltype, .fmode = "r"}, f2 = {.fname = "resources/cloud.svg", .ftype = svgtype, .fmode = "rb"},
+			 f3 = {.fname = "resources/gear.svg", .ftype = svgtype, .fmode = "rb"}, f4 = {.fname = "resources/favicon.ico", .ftype = icotype, .fmode = "rb"},
+			 f5 = {.fname = "resources/user.svg", .ftype = svgtype, .fmode = "rb"}, f6 = {.fname = "resources/tick.svg", .ftype = svgtype, .fmode = "rb"},
+			 f7 = {.fname = "resources/gearicon.svg", .ftype = svgtype, .fmode = "rb"}, f8 = {.fname = "resources/file.svg", .ftype = svgtype, .fmode = "rb"},
+			 f9 = {.fname = "resources/dbadd.svg", .ftype = svgtype, .fmode = "rb"}, f10= {.fname = "resources/upload.svg", .ftype = svgtype, .fmode = "rb"},
+			 f11= {.fname = "resources/download.svg", .ftype = svgtype, .fmode = "rb"}, f12 = {.fname = "resources/dbremove.svg", .ftype = svgtype, .fmode = "rb"};
 	struct site_file** site_files;
 	if(memalign((void*)&site_files, 64, 24*sizeof(struct site_file*))){printf("mem err\n"); return 0;}
-	site_files[0] = &f1; site_files[1] = &f2; site_files[2] = &f3; site_files[3] = &f4; site_files[4] = &f5;
+	site_files[0] = &f1; site_files[1] = &f2; site_files[2] = &f3; site_files[3] = &f4; site_files[4] = &f5; site_files[5] = &f6;
+	site_files[6] = &f7; site_files[7] = &f8; site_files[8] = &f9; site_files[9] = &f10; site_files[10] = &f11; site_files[11] = &f12;
 	for(size_t i = 0; i < SITE_FILES; ++i){
 		site_files[i]->fsize = Create_HTTPsend_Filebuf(site_files[i]->fname, site_files[i]->ftype, site_files[i]->fmode, &site_files[i]->fbuf);
 	}
@@ -276,5 +278,8 @@ int main(){
 		}
 		close(client_socket);
 	}	
+
+
+
 	return 0;
 }
