@@ -1,15 +1,15 @@
-		var rand = 0;
-		var rand_Y = 0;
-		var sign = '+';
-		var t1; var t2; var t3; var t4;
-		var timeouts = [t1, t2, t3, t4];
-		var clouds = [
-				[$('#cloud_1'), $('#cloud_1').css("left")], [$('#cloud_2'), $('#cloud_2').css("left")], [$('#cloud_3'), $('#cloud_3').css("left")],
-				[$('#cloud_4'), $('#cloud_4').css("left")], [$('#cloud_5'), $('#cloud_5').css("left")], [$('#cloud_6'), $('#cloud_6').css("left")],
-				[$('#cloud_7'), $('#cloud_7').css("left")], [$('#cloud_8'), $('#cloud_8').css("left")], [$('#cloud_9'), $('#cloud_9').css("left")],
-				[$('#cloud_10'), $('#cloud_10').css("left")], [$('#cloud_11'), $('#cloud_11').css("left")], [$('#cloud_12'), $('#cloud_12').css("left")],
-				[$('#cloud_13'), $('#cloud_13').css("left")], [$('#cloud_14'), $('#cloud_14').css("left")], [$('#cloud_15'), $('#cloud_15').css("left")]
-	     		     ];
+var rand = 0;
+var rand_Y = 0;
+var sign = '+';
+var t1; var t2; var t3; var t4;
+var timeouts = [t1, t2, t3, t4];
+var clouds = [
+		[$('#cloud_1'), $('#cloud_1').css("left")], [$('#cloud_2'), $('#cloud_2').css("left")], [$('#cloud_3'), $('#cloud_3').css("left")],
+		[$('#cloud_4'), $('#cloud_4').css("left")], [$('#cloud_5'), $('#cloud_5').css("left")], [$('#cloud_6'), $('#cloud_6').css("left")],
+		[$('#cloud_7'), $('#cloud_7').css("left")], [$('#cloud_8'), $('#cloud_8').css("left")], [$('#cloud_9'), $('#cloud_9').css("left")],
+		[$('#cloud_10'), $('#cloud_10').css("left")], [$('#cloud_11'), $('#cloud_11').css("left")], [$('#cloud_12'), $('#cloud_12').css("left")],
+		[$('#cloud_13'), $('#cloud_13').css("left")], [$('#cloud_14'), $('#cloud_14').css("left")], [$('#cloud_15'), $('#cloud_15').css("left")]
+	     ];
 			function Anim3(start){
 				for(var i = start; i < (start + 3); ++i){
 					if(Math.round(Math.random())){sign = '+';}
