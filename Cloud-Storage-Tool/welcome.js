@@ -1,15 +1,15 @@
-var rand = 0;
-var rand_Y = 0;
-var sign = '+';
-var t1; var t2; var t3; var t4;
-var timeouts = [t1, t2, t3, t4];
-var clouds = [
-		[$('#cloud_1'), $('#cloud_1').css("left")], [$('#cloud_2'), $('#cloud_2').css("left")], [$('#cloud_3'), $('#cloud_3').css("left")],
-		[$('#cloud_4'), $('#cloud_4').css("left")], [$('#cloud_5'), $('#cloud_5').css("left")], [$('#cloud_6'), $('#cloud_6').css("left")],
-		[$('#cloud_7'), $('#cloud_7').css("left")], [$('#cloud_8'), $('#cloud_8').css("left")], [$('#cloud_9'), $('#cloud_9').css("left")],
-		[$('#cloud_10'), $('#cloud_10').css("left")], [$('#cloud_11'), $('#cloud_11').css("left")], [$('#cloud_12'), $('#cloud_12').css("left")],
-		[$('#cloud_13'), $('#cloud_13').css("left")], [$('#cloud_14'), $('#cloud_14').css("left")], [$('#cloud_15'), $('#cloud_15').css("left")]
-	     ];
+var password = "", uniqueid = "", username = "";
+		var rand = 0, rand_Y = 0;
+		var sign = '+';
+		var t1; var t2; var t3; var t4;
+		var timeouts = [t1, t2, t3, t4];
+		var clouds = [
+				[$('#cloud_1'), $('#cloud_1').css("left")], [$('#cloud_2'), $('#cloud_2').css("left")], [$('#cloud_3'), $('#cloud_3').css("left")],
+				[$('#cloud_4'), $('#cloud_4').css("left")], [$('#cloud_5'), $('#cloud_5').css("left")], [$('#cloud_6'), $('#cloud_6').css("left")],
+				[$('#cloud_7'), $('#cloud_7').css("left")], [$('#cloud_8'), $('#cloud_8').css("left")], [$('#cloud_9'), $('#cloud_9').css("left")],
+				[$('#cloud_10'), $('#cloud_10').css("left")], [$('#cloud_11'), $('#cloud_11').css("left")], [$('#cloud_12'), $('#cloud_12').css("left")],
+				[$('#cloud_13'), $('#cloud_13').css("left")], [$('#cloud_14'), $('#cloud_14').css("left")], [$('#cloud_15'), $('#cloud_15').css("left")]
+	     		     ];
 			function Anim3(start){
 				for(var i = start; i < (start + 3); ++i){
 					if(Math.round(Math.random())){sign = '+';}
@@ -100,12 +100,18 @@ var clouds = [
 			}
 	
 			function ChangePanels(curr_id, next_id, sign){
+				$('#err_p').css("display", "none");
 				RotateGears();
 				$('#' + curr_id).animate({left: sign + "=72%"}, (1060), "linear",function(){$(this).css("display", "none");});
 				$('#' + next_id).css("display", "block");
 				$('#' + next_id).animate({left: sign + "=72%"}, (1060), "linear",function(){});
 			}
-
+			
+			function ShowMessage(msg, is_err){
+				$('#err_p').text = msg;
+				if(is_err){$('#err_p').css({"background-color" : "(255, 184, 207)", "color" : "red", "border-color" : "red", "display" : "block"});}
+				else{$('#err_p').css({"color" : "rgb(0, 115, 4)", "background-color" : "rgb(130,255,176)", "display" : "block", "border-color" : "rgb(0,115,4)"});}
+			}
 
 			$('#returning_btn').click(function(){
 				ChangePanels("boxdiv1", "log_username", "-");			
@@ -196,9 +202,9 @@ var clouds = [
 			});
 			var password = "";
 			var uniqueid = "";
-
+			var username = "";
 			$('#login_usr_nextbtn').click(function(){
-				let username = $('#log_usr_in').val();
+				username = $('#log_usr_in').val();
 				if(username == ""){
 					$('#err_p').text("Field can't be empty"); 
 					$('#err_p').css("display", "block");
@@ -257,7 +263,7 @@ var clouds = [
 				else{
 					$('#err_p').css("display", "none");
 					ChangePanels("log_pass", "log_uniqueid", "-");
-					password = "";
+					password = inval;
 					return;
 				}
 			});
@@ -282,7 +288,7 @@ var clouds = [
 				else{
 					$('#err_p').css("display", "none");
 					ChangePanels("log_uniqueid", "mainpage", "-");
-					uniqueid = "";
+					uniqueid = inval;
 					return;
 				}
 			});
@@ -292,14 +298,12 @@ var clouds = [
 			});
 
 			$('#changename').click(function(){
-				$('#usr_setting_in').attr('type', 'text');
-				$('#usr_setting_in').attr('placeholder', 'username');
+				$('#usr_setting_in').attr({'type' : 'text', "placeholder" : "username"});
 				$('#usr_setting_in').val("");
 			});
 
 			$('#changepass').click(function(){
-				$('#usr_setting_in').attr('type', 'password');
-				$('#usr_setting_in').attr('placeholder', 'password');
+				$('#usr_setting_in').attr({'type' : 'password', "placeholder" : "password"});
 				$('#usr_setting_in').val("");
 			});
 
@@ -307,6 +311,50 @@ var clouds = [
 				
 			});
 
+			
+
 			$('#usr_options_backbtn').click(function(){
 				ChangePanels("usr_options", "mainpage", "+");
+			});
+
+			$('#usr_setting_btn').click(function(){
+				let newval = $('#usr_setting_in').val();
+				if(newval == ""){
+					$('#err_p').text("Field can't be empty");
+					$('#err_p').css("display", "block");
+					return;
+				}
+				if(newval.length > 16){
+					$('#err_p').text("Max length: 16");
+					$('#err_p').css("display", "block");
+					return;					
+				}
+				if($('#usr_setting_in').attr('type') == 'text'){
+					$.ajax({ type: 'POST', dataType: 'text', data: { action : "A", username : newval }})
+					.done(function(response) {
+					    	if(response == 'no'){
+							$.ajax({ type: 'POST', dataType: 'text', data: { action : "D", oldusername : username, newusername : newval }});
+							$('#err_p').css({"color" : "rgb(0, 115, 4)", "background-color" : "rgb(130,255,176)", "display" : "block", "border-color" : "rgb(0,115,4)"});
+							$('#err_p').text("Successfully changed name");
+							return;
+						}
+						else{
+							$('#err_p').text("Username already taken"); 
+							$('#err_p').css("display", "block");
+							return;
+						}
+					})
+				}
+				if($('#usr_setting_in').attr('type') == "password"){
+					if(newval.length < 6){
+						$('#err_p').text("Min pass length: 6");
+						$('#err_p').css("display", "block");
+						return;						
+					}
+					$.ajax({ type: 'POST', dataType: 'text', data: { action : "E", id : uniqueid, newpassword : newval }});
+					$('#err_p').css({"color" : "rgb(0, 115, 4)", "background-color" : "rgb(130,255,176)", "display" : "block", "border-color" : "rgb(0,115,4)"});
+					$('#err_p').text("Successfully changed password");
+					return;					
+				}
+				
 			});
