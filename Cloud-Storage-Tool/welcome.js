@@ -1,4 +1,4 @@
-var password = "", uniqueid = "", username = "";
+		var password = "", uniqueid = "", username = "";
 		var rand = 0, rand_Y = 0;
 		var sign = '+';
 		var t1; var t2; var t3; var t4;
@@ -108,9 +108,9 @@ var password = "", uniqueid = "", username = "";
 			}
 			
 			function ShowMessage(msg, is_err){
-				$('#err_p').text = msg;
-				if(is_err){$('#err_p').css({"background-color" : "(255, 184, 207)", "color" : "red", "border-color" : "red", "display" : "block"});}
-				else{$('#err_p').css({"color" : "rgb(0, 115, 4)", "background-color" : "rgb(130,255,176)", "display" : "block", "border-color" : "rgb(0,115,4)"});}
+				$('#err_p').text(msg);
+				if(is_err){$('#err_p').css({"background-color" : "rgb(255, 173, 173)", "color" : "red", "border-color" : "red", "display" : "block"});}
+				else{$('#err_p').css({"color" : "rgb(0, 115, 4)", "background-color" : "rgb(130,255,176)", "display" : "block", "border-color" : "rgb(26, 255, 0)"});}
 			}
 
 			$('#returning_btn').click(function(){
@@ -131,13 +131,11 @@ var password = "", uniqueid = "", username = "";
 			$('#reg_username_nextbtn').click(function(){
 				let inval = $('#reg_username_in').val();
 				if(inval == ""){
-					$('#err_p').text("Field can't be empty"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Field can't be empty", 1);
 					return;					
 				}
 				else if(inval.length > 16){
-					$('#err_p').text("Max length: 16 characters");
-					$('#err_p').css("display","block");
+					ShowMessage("Max length: 16", 1);
 					return;
 				}
 				else{
@@ -151,14 +149,12 @@ var password = "", uniqueid = "", username = "";
 					})
 					.done(function(response) {
 					    	if(response == 'no'){
-							$('#err_p').css("display", "none");
 							ChangePanels("reg_username", "reg_password", "-");
 							new_username = inval;
 							return;
 						}
 						else{
-							$('#err_p').text("This username is taken"); 
-							$('#err_p').css("display", "block");
+							ShowMessage("Username already taken", 1);
 							return;
 						}
 					})
@@ -168,18 +164,15 @@ var password = "", uniqueid = "", username = "";
 			$('#reg_password_nextbtn').click(function(){
 				let inval = $('#reg_password_in').val();
 				if(inval == ""){
-					$('#err_p').text("Field can't be empty"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Field can't be empty", 1);
 					return;					
 				}
 				else if(inval.length < 6){
-					$('#err_p').text("Min length: 6 characters");
-					$('#err_p').css("display","block");
+					ShowMessage("Min pass length: 6", 1);
 					return;					
 				}
 				else if(inval.length > 16){
-					$('#err_p').text("Max length: 16 characters");
-					$('#err_p').css("display","block");
+					ShowMessage("Max length: 16", 1);
 					return;
 				}
 				else{
@@ -192,8 +185,7 @@ var password = "", uniqueid = "", username = "";
 							password : inval
 						}
 					})
-					.done(function(response) {
-						$('#err_p').css("display","none");						
+					.done(function(response) {						
 						new_password = inval;
 					    	new_uniqueid = response;
 						ChangePanels("reg_password", "reg_uniqueid", "-");
@@ -206,13 +198,11 @@ var password = "", uniqueid = "", username = "";
 			$('#login_usr_nextbtn').click(function(){
 				username = $('#log_usr_in').val();
 				if(username == ""){
-					$('#err_p').text("Field can't be empty"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Field can't be empty", 1);
 					return;
 				}
 				else if(username.length > 16){
-					$('#err_p').text("Max length: 16 characters"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Max length: 16", 1);
 					return;
 				}
 				else{
@@ -226,11 +216,9 @@ var password = "", uniqueid = "", username = "";
 					})
 					.done(function(response) {
 					    	if(response == 'no'){
-							$('#err_p').text("The username doesn't exist."); 
-							$('#err_p').css("display", "block");
+							ShowMessage("Username doesn't exist", 1);
 						}
 						else{
-							$('#err_p').css("display", "none");
 							ChangePanels("log_username", "log_pass", "-");
 							let index = 0;
 							while(response[index] != '-'){++index;}
@@ -246,22 +234,18 @@ var password = "", uniqueid = "", username = "";
 			$('#login_pass_nextbtn').click(function(){
 				let inval = $('#log_pass_in').val();
 				if(inval == ""){
-					$('#err_p').text("Field can't be empty"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Field can't be empty", 1);
 					return;
 				}
 				else if(inval.length > 16){
-					$('#err_p').text("Max length: 16 characters"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Max length: 16", 1);
 					return;
 				}
 				else if (inval != password){
-					$('#err_p').text("Incorrect password entered"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Incorrect password", 1);
 					return;
 				}
 				else{
-					$('#err_p').css("display", "none");
 					ChangePanels("log_pass", "log_uniqueid", "-");
 					password = inval;
 					return;
@@ -271,22 +255,18 @@ var password = "", uniqueid = "", username = "";
 			$('#login_uniqueid_nextbtn').click(function(){
 				let inval = $('#log_uniqueid_in').val();
 				if(inval == ""){
-					$('#err_p').text("Field can't be empty"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Field can't be empty", 1);
 					return;
 				}
 				else if(inval.length > 16){
-					$('#err_p').text("Max length: 16 characters"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Max length: 16", 1);
 					return;
 				}
 				else if (inval != uniqueid){
-					$('#err_p').text("Incorrect unique ID entered"); 
-					$('#err_p').css("display", "block");
+					ShowMessage("Incorrect unique ID", 1);
 					return;
 				}
 				else{
-					$('#err_p').css("display", "none");
 					ChangePanels("log_uniqueid", "mainpage", "-");
 					uniqueid = inval;
 					return;
@@ -320,40 +300,51 @@ var password = "", uniqueid = "", username = "";
 			$('#usr_setting_btn').click(function(){
 				let newval = $('#usr_setting_in').val();
 				if(newval == ""){
-					$('#err_p').text("Field can't be empty");
-					$('#err_p').css("display", "block");
+					ShowMessage("Field can't be empty", 1);
 					return;
 				}
 				if(newval.length > 16){
-					$('#err_p').text("Max length: 16");
-					$('#err_p').css("display", "block");
+					ShowMessage("Max length: 16", 1);
 					return;					
 				}
 				if($('#usr_setting_in').attr('type') == 'text'){
-					$.ajax({ type: 'POST', dataType: 'text', data: { action : "A", username : newval }})
+					$.ajax({ 
+						type: 'POST', 
+						dataType: 'text', 
+						data: { 
+							action : "A", 
+							username : newval 
+						}
+					})
 					.done(function(response) {
 					    	if(response == 'no'){
-							$.ajax({ type: 'POST', dataType: 'text', data: { action : "D", oldusername : username, newusername : newval }});
-							$('#err_p').css({"color" : "rgb(0, 115, 4)", "background-color" : "rgb(130,255,176)", "display" : "block", "border-color" : "rgb(0,115,4)"});
-							$('#err_p').text("Successfully changed name");
+							$.ajax({ 
+								type: 'POST', 
+								dataType: 'text', 
+								data: { 
+									action : "D", 
+									oldusername : username, 
+									newusername : newval 
+								}
+							});
+							ShowMessage("Successfully changed name", 0);
+							username = newval;
 							return;
 						}
 						else{
-							$('#err_p').text("Username already taken"); 
-							$('#err_p').css("display", "block");
+							ShowMessage("Username already taken", 1);
 							return;
 						}
 					})
 				}
 				if($('#usr_setting_in').attr('type') == "password"){
 					if(newval.length < 6){
-						$('#err_p').text("Min pass length: 6");
-						$('#err_p').css("display", "block");
+						ShowMessage("Min pass length: 6", 1);
 						return;						
 					}
 					$.ajax({ type: 'POST', dataType: 'text', data: { action : "E", id : uniqueid, newpassword : newval }});
-					$('#err_p').css({"color" : "rgb(0, 115, 4)", "background-color" : "rgb(130,255,176)", "display" : "block", "border-color" : "rgb(0,115,4)"});
-					$('#err_p').text("Successfully changed password");
+					ShowMessage("Successfully changed password", 0);
+					password = newval;
 					return;					
 				}
 				
