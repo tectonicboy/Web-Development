@@ -1,4 +1,4 @@
-			body{
+body{
 				overflow-x: hidden;
 				overflow-y: hidden;
 				background-color:rgb(191, 244, 255);
@@ -122,7 +122,7 @@
 				position:relative;
 				height:50px;
 				width:50px;
-				top:52%;
+				top:30%;
 				float:left;
 				padding:0px;
 				margin:0px;
@@ -137,9 +137,9 @@
 				color:red;
 				font-family:"Orbitron";
 				text-align:center;
-				font-size:20;
-				height:30;
-				width:400;
+				font-size:18;
+				height:3.2967%;
+				width:20.83333%;
 				top:56%;
 				left:41%;
 				background-color:rgb(255, 184, 207);
@@ -218,7 +218,15 @@
 				position:relative;
 				float:top;
 				top:10%;
-				left:-5%;
+				left:5%;
 				padding:0px;
 				margin:0px;
+			}
+
+			#deleteacc{
+				color:red; !important;
+			}
+
+			#usr_setting_btn:hover{
+				cursor:pointer;
 			}
