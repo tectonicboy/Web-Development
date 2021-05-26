@@ -373,7 +373,7 @@ int main(){
 			
 			printf("HERE8\n");
 			
-			snprintf(delim, 134, "\r\n--%s--", boundary_name);
+			snprintf(delim, 256, "\r\n--%s--", boundary_name);
 			printf("Ending delimiter we'll be finding is:%s\n", delim);
 
 			pos = find_substr(client_message, "\r\n\r\n", pos); pos += 4;
