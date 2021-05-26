@@ -6,12 +6,35 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
 #include <sys/un.h>
+#include <netinet/in.h>
 
 #define memalign posix_memalign
+
+#define HEAP_ALIGN(TYPE, NAME, COUNT) \
+	TYPE* NAME; \
+	if(posix_memalign((void*)&NAME, 64, COUNT*sizeof(TYPE))){printf("aligned mem err\n"); return 0;}
+
 #define TIME_SECOND 1000000
 #define SITE_FILES 13
+
+unsigned short find_substr(char* str, char* substr, unsigned short pos){
+	unsigned short smallsiz = (unsigned short)strlen(substr);
+	printf("Entered find_substr with substr %s at pos %u\n", substr, pos);
+	char flags = 0b00000000;
+	for(unsigned short i = pos; i < 2048 - smallsiz; ++i){
+		flags |= 0b00000001;
+		for(short j = 0U; j < smallsiz; ++j){
+			if(str[i+j] != substr[j]){
+				flags &= ~0b00000001; 
+				break;
+			}
+		}
+		if(flags & 0b00000001){return i;}
+	}	
+	printf("About to return 2048\n");
+	return 2048;
+}
 
 long long hexdec(char first, char second){
 	char hex[3];
@@ -237,6 +260,7 @@ struct site_file{
 	u_int32_t fsize;
 };
 
+
 int main(){
 	char *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html", *pngtype = "image/png", *jpgtype = "image/jpg";
 
@@ -248,8 +272,9 @@ int main(){
 			 f9 = {.fname = "resources/dbadd.svg", .ftype = svgtype, .fmode = "rb"}, f10= {.fname = "resources/upload.svg", .ftype = svgtype, .fmode = "rb"},
 			 f11= {.fname = "resources/download.svg", .ftype = svgtype, .fmode = "rb"}, f12 = {.fname = "resources/dbremove.svg", .ftype = svgtype, .fmode = "rb"},
 			 f13= {.fname = "resources/nextarrow.svg", .ftype = svgtype, .fmode = "rb"};
-	struct site_file** site_files;
-	if(memalign((void*)&site_files, 64, 24*sizeof(struct site_file*))){printf("mem err\n"); return 0;}
+	HEAP_ALIGN(struct site_file*, site_files, 24);
+	//struct site_file** site_files;
+	//if(memalign((void*)&site_files, 64, 24*sizeof(struct site_file*))){printf("mem err\n"); return 0;}
 	site_files[0] = &f1; site_files[1] = &f2; site_files[2] = &f3; site_files[3] = &f4; site_files[4] = &f5; site_files[5] = &f6;
 	site_files[6] = &f7; site_files[7] = &f8; site_files[8] = &f9; site_files[9] = &f10; site_files[10] = &f11; site_files[11] = &f12;
 	site_files[12] = &f13;
@@ -265,16 +290,18 @@ int main(){
 
 	//Declarations for serving loop
 	unsigned servervars_start_i;
+	short pos = 0U;
 	struct sockaddr_in client_address;
     	int client_socket, sent;
 	socklen_t clientLen = sizeof(struct sockaddr_in);
     	u_int32_t imageResponseLen;
-   	size_t k, db_response_siz;
-	char *serverside_variables, *requested_fname, *client_message, *db_response;
+   	size_t k, db_response_siz, sent_siz;
+	char *serverside_variables, *requested_fname, *client_message, *db_response, *delim;
 	if(memalign((void*)&serverside_variables, 64, 256) || memalign((void*)&requested_fname, 64, 64) 
-	   || memalign((void*)&client_message, 64, 2048) || memalign((void*)&db_response, 64, 128))
+	   || memalign((void*)&client_message, 64, 2048) || memalign((void*)&db_response, 64, 128) || memalign((void*)&delim, 64, 128))
 	{printf("mem alloc fail\n"); return 0;}
-
+	char command[256], sent_fname[64], boundary_name[128];
+	FILE* created_file;
 	//Serving loop
 	while(1){
 		//Reset stuff.
@@ -311,7 +338,55 @@ int main(){
 			if(send(client_socket, db_response, db_response_siz, 0) < 0){printf("db response send fail\n");}
 			else{printf("Sent db response successfully.\n"); sent = 1;}
 		}
+		//Receiving a user file to be stored.
+		else{
+			pos = 0; sent_siz = 0;
+			memset(boundary_name, 0x0, 128);
+			pos = find_substr(client_message, "boundary=", pos); //Go to where boundary name starts
+			if(pos == 2048){goto label2;} //Replace with sizeof buffer as per required later;
+			pos += 9;
+			for(short i = 0U; client_message[pos] != '\r'; ++i){ // Get boundary name
+				boundary_name[i] = client_message[pos];
+				++pos;
+			}
+			printf("Extracted boundary name:%s\n", boundary_name);
+			printf("HERE2\n");
+			
+			printf("HERE3\n");
+				
+			pos = find_substr(client_message, "filename=", pos); pos += 10; //Go to where sent file's name starts
+			printf("HERE4\n");
+			memset(sent_fname, 0x0, 64);
+			for(short i = 0U; client_message[pos] != '"'; ++i){ //Get file name
+				sent_fname[i] = client_message[pos];
+				printf("HERE5\n");
+				++pos;
+			}
+			memset(command, 0x0, 256);
+			printf("HERE6\n");
+			snprintf(command, 256, "touch %s; chmod +rw %s", sent_fname, sent_fname); //Create the file on the system
+			printf("HERE7\n");
+			system(command);
+			created_file = fopen(sent_fname, "wb"); //Open for writing binary data to it
 
+			printf("Generated the following terminal command:%s\n", command);
+			
+			printf("HERE8\n");
+			
+			snprintf(delim, 134, "\r\n--%s--", boundary_name);
+			printf("Ending delimiter we'll be finding is:%s\n", delim);
+
+			pos = find_substr(client_message, "\r\n\r\n", pos); pos += 4;
+			printf("Found the position at which file contents begin: %u\n", pos);
+			created_file = fopen(sent_fname, "wb");
+			unsigned long long end_pos = (unsigned long long)find_substr(client_message, delim, pos);
+			sent_siz = end_pos - pos;
+			printf("The sent file's size in bytes: %lu\n", sent_siz);
+			const void* mem_pos = (void*)&client_message[pos];
+			fwrite(mem_pos, 1, sent_siz, created_file); 
+			fclose(created_file);
+		}
+		label2:
         	if(!sent){
 			printf("About to send webpage code.\n\n");
 			memset(site_files[0]->fbuf, 0x0, site_files[0]->fsize);
