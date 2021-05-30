@@ -143,8 +143,7 @@ void Generate_SQL_Command(char* vars, char* buf){
 	strncpy(addr.sun_path+1, socket_path+1, sizeof(addr.sun_path)-2);
 	connect(fd, (struct sockaddr*)&addr, sizeof(addr));
 	switch(vars[0]){
-		case 'A':
-		case 'B':{
+		case 'A':{
 			strcat(buf, "CloudX_DB-CHECK-Users-name-");
 			while(vars[pos] != '\n'){
 				buf[(pos - 2) + 27] = vars[pos]; 
@@ -182,7 +181,7 @@ void Generate_SQL_Command(char* vars, char* buf){
 			for(size_t i = 0; i < 6; ++i){db_uniqueid[i] = (r1 + (rand() % (r2 - r1)));}
 			db_uniqueid[6] = '\0';
 			strcat(buf, db_uniqueid);
-			strcat(buf, "-0-0.0.0");			
+			strcat(buf, "-0-0/0/0-4294965097");			
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			write(fd, buf, strlen(buf));
 			memset(buf, 0x0, 128);
@@ -230,7 +229,75 @@ void Generate_SQL_Command(char* vars, char* buf){
 			close(fd);
 			break;
 		}
+		case 'F':{
+			strcat(buf, "CloudX_DB-INSERT-INTO-Files-VALS-");
+			while(vars[pos] != '\n'){
+				buf[(pos - 2) + 33] = vars[pos];
+				++pos;
+			}
+			printf("Constructed the following custom SQL command: %s\n", buf);
+			write(fd, buf, strlen(buf));
+			memset(buf, 0x0, 128);
+			strcat(buf, "yes");
+			close(fd);
+			break;
+		}
+		case 'G':{
+			strcat(buf, "CloudX_DB-CHECK-Files-name-");
+			while(vars[pos] != '\n'){
+				buf[(pos - 2) + 27] = vars[pos]; 
+				++pos;
+			}
+			printf("Constructed the following custom SQL command: %s\n", buf);
+			write(fd, buf, strlen(buf));
+			memset(buf, 0x0, 128);
+			read(fd, buf, 128);
+			printf("The database system sent the following answer: %s\n", buf);
+			close(fd);
+			break;
+		}
+		case 'H':{
+			strcat(buf, "CloudX_DB-ALTER-Files-WHERE-uploader-");
+			while(vars[pos] != '-'){
+				buf[(pos - 2) + 37] = vars[pos];
+				++pos;
+			}
+			buf[(pos - 2) + 37] = '-';
+			++pos;
+			strcat(buf, "uploader-");
+			while(vars[pos] != '\n'){
+				buf[(pos - 2) + 46] = vars[pos];
+				++pos;
+			}
+			printf("Constructed the following custom SQL command: %s\n", buf);
+			write(fd, buf, strlen(buf));
+			memset(buf, 0x0, 128);
+			strcat(buf, "yes");
+			close(fd);
+			break;
+		}
+		case 'I':{
+			strcat(buf, "CloudX_DB-ALTER-Users-WHERE-name-");
+			while(vars[pos] != '-'){
+				buf[(pos - 2) + 33] = vars[pos];
+				++pos;
+			}
+			buf[(pos - 2) + 33] = '-';
+			++pos;
+			strcat(buf, "last_active-");
+			while(vars[pos] != '\n'){
+				buf[(pos - 2) + 45] = vars[pos];
+				++pos;
+			}
+			printf("Constructed the following custom SQL command: %s\n", buf);
+			write(fd, buf, strlen(buf));
+			memset(buf, 0x0, 128);
+			strcat(buf, "yes");
+			close(fd);
+			break;
+		}
 		default:{
+			close(fd);
 			break;
 		}	  
 	}
@@ -259,7 +326,6 @@ struct site_file{
 	char* fbuf;	
 	u_int32_t fsize;
 };
-
 
 int main(){
 	char *icotype="image/x-icon", *svgtype="image/svg+xml", *htmltype = "text/html", *pngtype = "image/png", *jpgtype = "image/jpg";
