@@ -36,7 +36,6 @@ var password = "", uniqueid = "", username = "";
 			}
 			var hidden = false;
 			$(window).on("load", function(){
-				
 				document.body.style.zoom = "100%";
 				AnimateClouds();
 				var cloud_animation = setInterval(function(){AnimateClouds();}, 25500);
