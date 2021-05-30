@@ -1,4 +1,4 @@
-		var password = "", uniqueid = "", username = "";
+var password = "", uniqueid = "", username = "";
 		var rand = 0, rand_Y = 0;
 		var sign = '+';
 		var t1; var t2; var t3; var t4;
@@ -267,6 +267,20 @@
 					return;
 				}
 				else{
+					let today = new Date();
+					let dd = String(today.getDate()).padStart(2, '0');
+					let mm = String(today.getMonth() + 1).padStart(2, '0');
+					let yyyy = today.getFullYear();
+					today = dd + '/' + mm + '/' + yyyy;
+					$.ajax({ 
+						type: 'POST', 
+						dataType: 'text', 
+						data: { 
+							action : "I", 
+							username : username, 
+							date : today 
+						}
+					});
 					ChangePanels("log_uniqueid", "mainpage", "-");
 					uniqueid = inval;
 					return;
@@ -327,6 +341,15 @@
 									newusername : newval 
 								}
 							});
+							$.ajax({
+								type: 'POST',
+								dataType: 'text',
+								data: {
+									action : "H",
+									oldusername : username,
+									newusername : newval
+								}
+							});
 							ShowMessage("Successfully changed name", 0);
 							username = newval;
 							return;
@@ -348,4 +371,73 @@
 					return;					
 				}
 				
+			});
+
+			$('#upload_btn').click(function(){
+				ChangePanels("mainpage", "add_file", "-");
+			});
+
+			$('#submitfile_btn').click(function(){
+				let fd = new FormData();
+				let files = $('#choosefile_btn')[0].files;
+				if(files.length > 0){
+					fd.append('file', files[files.length - 1]);
+					$.ajax({
+						type : 'post',
+						dataType : 'text',
+						data:{
+							action : "G",
+							name : files[files.length - 1].name
+						}
+					})
+					.done(function(response){
+						if(response == "no"){
+							$.ajax({
+								type: 'post',
+								data: fd,
+								contentType: false,
+								processData: false,
+								success: function(response){
+									if(response != 0){
+										let today = new Date();
+										let dd = String(today.getDate()).padStart(2, '0');
+										let mm = String(today.getMonth() + 1).padStart(2, '0');
+										let yyyy = today.getFullYear();
+										today = dd + '/' + mm + '/' + yyyy;
+										$.ajax({
+											type: 'post',
+											dataType: 'text',
+											data:{
+												action : "F",
+												name : files[files.length - 1].name,
+												size : files[files.length - 1].size,
+												uploader : username,
+												date : today
+											}
+										})
+										.done(function(response){
+											if(response == "yes"){
+												ShowMessage("Upload success!", 0);
+												$('#choosefile_btn').val('');
+											}
+									
+										})
+									}
+									else{
+										ShowMessage("Error uploading file", 1);
+										$('#choosefile_btn').val('');
+									}
+								}
+
+							});
+						}
+						else{
+							ShowMessage("Already uploaded this file", 1)
+						}
+					});
+					
+				}
+				else{
+					ShowMessage("Please select a file", 1);
+				}	
 			});
