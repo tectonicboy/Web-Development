@@ -4,6 +4,7 @@
 #include <math.h>
 #include <assert.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/un.h>
@@ -144,9 +145,9 @@ void Generate_SQL_Command(char* vars, char* buf){
 	connect(fd, (struct sockaddr*)&addr, sizeof(addr));
 	switch(vars[0]){
 		case 'A':{
-			strcat(buf, "CloudX_DB-CHECK-Users-name-");
+			strcat(buf, "1:CloudX_DB-CHECK-Users-name-");
 			while(vars[pos] != '\n'){
-				buf[(pos - 2) + 27] = vars[pos]; 
+				buf[(pos - 2) + 29] = vars[pos]; 
 				++pos;
 			}
 			strcat(buf, "-pass-unique_num\0");
@@ -159,18 +160,18 @@ void Generate_SQL_Command(char* vars, char* buf){
 			break;
 		}
 		case 'C':{
-			strcat(buf, "CloudX_DB-INSERT-INTO-Users-VALS-");
+			strcat(buf, "1:CloudX_DB-INSERT-INTO-Users-VALS-");
 			while(vars[pos] != '-'){
-				buf[(pos - 2) + 33] = vars[pos];
+				buf[(pos - 2) + 35] = vars[pos];
 				++pos;
 			}
-			buf[(pos - 2) + 33] = '-';
+			buf[(pos - 2) + 35] = '-';
 			++pos;
 			while(vars[pos] != '\n'){
-				buf[(pos - 2) + 33] = vars[pos];
+				buf[(pos - 2) + 35] = vars[pos];
 				++pos;
 			}
-			buf[(pos - 2) + 33] = '-';
+			buf[(pos - 2) + 35] = '-';
 			++pos;
 			time_t t;
 		   	srand((unsigned) time(&t));
@@ -190,16 +191,16 @@ void Generate_SQL_Command(char* vars, char* buf){
 			break;
 		}
 		case 'D':{
-			strcat(buf, "CloudX_DB-ALTER-Users-WHERE-name-");
+			strcat(buf, "1:CloudX_DB-ALTER-Users-WHERE-name-");
 			while(vars[pos] != '-'){
-				buf[(pos - 2) + 33] = vars[pos];
+				buf[(pos - 2) + 35] = vars[pos];
 				++pos;
 			}
-			buf[(pos - 2) + 33] = '-';
+			buf[(pos - 2) + 35] = '-';
 			++pos;
 			strcat(buf, "name-");
 			while(vars[pos] != '\n'){
-				buf[(pos - 2) + 38] = vars[pos];
+				buf[(pos - 2) + 40] = vars[pos];
 				++pos;
 			}
 			printf("Constructed the following custom SQL command: %s\n", buf);
@@ -210,61 +211,14 @@ void Generate_SQL_Command(char* vars, char* buf){
 			break;
 		}
 		case 'E':{
-			strcat(buf, "CloudX_DB-ALTER-Users-WHERE-unique_num-");
+			strcat(buf, "1:CloudX_DB-ALTER-Users-WHERE-unique_num-");
 			while(vars[pos] != '-'){
-				buf[(pos - 2) + 39] = vars[pos];
+				buf[(pos - 2) + 41] = vars[pos];
 				++pos;
 			}
-			buf[(pos - 2) + 39] = '-';
+			buf[(pos - 2) + 41] = '-';
 			++pos;
 			strcat(buf, "pass-");
-			while(vars[pos] != '\n'){
-				buf[(pos - 2) + 44] = vars[pos];
-				++pos;
-			}
-			printf("Constructed the following custom SQL command: %s\n", buf);
-			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
-			strcat(buf, "yes");
-			close(fd);
-			break;
-		}
-		case 'F':{
-			strcat(buf, "CloudX_DB-INSERT-INTO-Files-VALS-");
-			while(vars[pos] != '\n'){
-				buf[(pos - 2) + 33] = vars[pos];
-				++pos;
-			}
-			printf("Constructed the following custom SQL command: %s\n", buf);
-			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
-			strcat(buf, "yes");
-			close(fd);
-			break;
-		}
-		case 'G':{
-			strcat(buf, "CloudX_DB-CHECK-Files-name-");
-			while(vars[pos] != '\n'){
-				buf[(pos - 2) + 27] = vars[pos]; 
-				++pos;
-			}
-			printf("Constructed the following custom SQL command: %s\n", buf);
-			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
-			read(fd, buf, 128);
-			printf("The database system sent the following answer: %s\n", buf);
-			close(fd);
-			break;
-		}
-		case 'H':{
-			strcat(buf, "CloudX_DB-ALTER-Files-WHERE-uploader-");
-			while(vars[pos] != '-'){
-				buf[(pos - 2) + 37] = vars[pos];
-				++pos;
-			}
-			buf[(pos - 2) + 37] = '-';
-			++pos;
-			strcat(buf, "uploader-");
 			while(vars[pos] != '\n'){
 				buf[(pos - 2) + 46] = vars[pos];
 				++pos;
@@ -276,17 +230,107 @@ void Generate_SQL_Command(char* vars, char* buf){
 			close(fd);
 			break;
 		}
-		case 'I':{
-			strcat(buf, "CloudX_DB-ALTER-Users-WHERE-name-");
-			while(vars[pos] != '-'){
-				buf[(pos - 2) + 33] = vars[pos];
+		case 'F':{
+			strcat(buf, "1:CloudX_DB-INSERT-INTO-Files-VALS-");
+			while(vars[pos] != '\n'){
+				buf[(pos - 2) + 35] = vars[pos];
 				++pos;
 			}
-			buf[(pos - 2) + 33] = '-';
+			printf("Constructed the following custom SQL command: %s\n", buf);
+			write(fd, buf, strlen(buf));
+			memset(buf, 0x0, 128);
+			strcat(buf, "yes");
+			close(fd);
+			break;
+		}
+		case 'G':{
+			size_t ind = 0;
+			int uploads, counter = 0;
+			unsigned long long s1 = 0, s2 = 0;
+			strcat(buf, "2:CloudX_DB-CHECK-Files-name-");
+			while(vars[pos] != '-'){
+				buf[(pos - 2) + 29] = vars[pos]; 
+				++pos;
+			}
+			++pos;
+
+			strcat(buf, ";CloudX_DB-CHECK-Users-name-");
+			while(vars[pos] != '-'){
+				buf[(pos - 2) + 56] = vars[pos];
+				++pos;
+			}
+			++pos;
+			strcat(buf, "-uploads-bytes_remaining;");
+			printf("Constructed the following custom SQL command: %s\n", buf);
+			write(fd, buf, strlen(buf));
+			memset(buf, 0x0, 128);
+			read(fd, buf, 128);
+			printf("The database system sent the following answer: %s\n", buf);
+			if(buf[0] == 'y'){
+				memset(buf, 0x0, 128);
+				strcat(buf, "yes1");
+				close(fd);
+				break;
+			}
+			else{
+				uploads = ((int)buf[7]) - 48;
+				if(uploads == 6){
+					memset(buf, 0x0, 128);
+					strcat(buf, "yes2");
+					close(fd);
+					break;
+				}
+				
+				ind = strlen(buf) - 2;
+				printf("ind = %lu\n", ind);
+				for(size_t i = ind; buf[i] != '-'; --i){
+					s1 += pow(10, counter) * (((int)(buf[i])) - 48); ++counter;
+				}
+				while(vars[pos] != '\n'){++pos;}
+				--pos;
+				counter = 0;
+				for(size_t i = pos; vars[i] != '-'; --i){
+					s2 += pow(10, counter) * (((int)(vars[i])) - 48); ++counter;
+				}
+				printf("Computed sizes: remaining(%llu) file(%llu)\n", s1, s2);
+				memset(buf, 0x0, 128);
+				if (s2 > s1){strcat(buf, "yes3");}
+				else{strcat(buf, "no");}
+				close(fd);
+				break;
+			}
+		}
+		case 'H':{
+			strcat(buf, "1:CloudX_DB-ALTER-Files-WHERE-uploader-");
+			while(vars[pos] != '-'){
+				buf[(pos - 2) + 39] = vars[pos];
+				++pos;
+			}
+			buf[(pos - 2) + 37] = '-';
+			++pos;
+			strcat(buf, "uploader-");
+			while(vars[pos] != '\n'){
+				buf[(pos - 2) + 48] = vars[pos];
+				++pos;
+			}
+			printf("Constructed the following custom SQL command: %s\n", buf);
+			write(fd, buf, strlen(buf));
+			memset(buf, 0x0, 128);
+			strcat(buf, "yes");
+			close(fd);
+			break;
+		}
+		case 'I':{
+			strcat(buf, "1:CloudX_DB-ALTER-Users-WHERE-name-");
+			while(vars[pos] != '-'){
+				buf[(pos - 2) + 35] = vars[pos];
+				++pos;
+			}
+			buf[(pos - 2) + 35] = '-';
 			++pos;
 			strcat(buf, "last_active-");
 			while(vars[pos] != '\n'){
-				buf[(pos - 2) + 45] = vars[pos];
+				buf[(pos - 2) + 47] = vars[pos];
 				++pos;
 			}
 			printf("Constructed the following custom SQL command: %s\n", buf);
@@ -416,12 +460,7 @@ int main(){
 				++pos;
 			}
 			printf("Extracted boundary name:%s\n", boundary_name);
-			printf("HERE2\n");
-			
-			printf("HERE3\n");
-				
 			pos = find_substr(client_message, "filename=", pos); pos += 10; //Go to where sent file's name starts
-			printf("HERE4\n");
 			memset(sent_fname, 0x0, 64);
 			for(short i = 0U; client_message[pos] != '"'; ++i){ //Get file name
 				sent_fname[i] = client_message[pos];
@@ -429,19 +468,12 @@ int main(){
 				++pos;
 			}
 			memset(command, 0x0, 256);
-			printf("HERE6\n");
 			snprintf(command, 256, "touch %s; chmod +rw %s", sent_fname, sent_fname); //Create the file on the system
-			printf("HERE7\n");
 			system(command);
 			created_file = fopen(sent_fname, "wb"); //Open for writing binary data to it
-
 			printf("Generated the following terminal command:%s\n", command);
-			
-			printf("HERE8\n");
-			
 			snprintf(delim, 256, "\r\n--%s--", boundary_name);
 			printf("Ending delimiter we'll be finding is:%s\n", delim);
-
 			pos = find_substr(client_message, "\r\n\r\n", pos); pos += 4;
 			printf("Found the position at which file contents begin: %u\n", pos);
 			created_file = fopen(sent_fname, "wb");
