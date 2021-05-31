@@ -1,4 +1,4 @@
-var password = "", uniqueid = "", username = "";
+		var password = "", uniqueid = "", username = "";
 		var rand = 0, rand_Y = 0;
 		var sign = '+';
 		var t1; var t2; var t3; var t4;
@@ -381,12 +381,18 @@ var password = "", uniqueid = "", username = "";
 				let files = $('#choosefile_btn')[0].files;
 				if(files.length > 0){
 					fd.append('file', files[files.length - 1]);
+					//Check if enough storage space, files capacity and if file name exists.
+					let fname = files[files.length - 1].name;
+					let fsize = files[files.length - 1].size;
+					let uploader = username;
 					$.ajax({
 						type : 'post',
 						dataType : 'text',
 						data:{
 							action : "G",
-							name : files[files.length - 1].name
+							name : fname,
+							uploader : uploader,
+							size : fsize
 						}
 					})
 					.done(function(response){
@@ -395,43 +401,46 @@ var password = "", uniqueid = "", username = "";
 								type: 'post',
 								data: fd,
 								contentType: false,
-								processData: false,
-								success: function(response){
-									if(response != 0){
-										let today = new Date();
-										let dd = String(today.getDate()).padStart(2, '0');
-										let mm = String(today.getMonth() + 1).padStart(2, '0');
-										let yyyy = today.getFullYear();
-										today = dd + '/' + mm + '/' + yyyy;
-										$.ajax({
-											type: 'post',
-											dataType: 'text',
-											data:{
-												action : "F",
-												name : files[files.length - 1].name,
-												size : files[files.length - 1].size,
-												uploader : username,
-												date : today
-											}
-										})
-										.done(function(response){
-											if(response == "yes"){
-												ShowMessage("Upload success!", 0);
-												$('#choosefile_btn').val('');
-											}
-									
-										})
-									}
-									else{
-										ShowMessage("Error uploading file", 1);
-										$('#choosefile_btn').val('');
-									}
+								processData: false
+							})
+							.done(function(response){
+								alert("Response: " + response);
+								if(response != 0){
+									let today = new Date();
+									let mm = String(today.getMonth() + 1).padStart(2, '0');
+									let dd = String(today.getDate()).padStart(2, '0');
+									let yyyy = today.getFullYear();
+									today = dd + '/' + mm + '/' + yyyy;
+									$.ajax({
+										type: 'post',
+										dataType: 'text',
+										data:{
+											action : "F",
+											name : files[files.length - 1].name,
+											size : files[files.length - 1].size,
+											uploader : username,
+											date : today
+										}
+									})
+									.done(function(response){
+										if(response == "yes"){
+											ShowMessage("Upload success!", 0);
+										}	
+									})
 								}
-
+								else{
+									ShowMessage("Error uploading file", 1);
+								}
 							});
 						}
-						else{
-							ShowMessage("Already uploaded this file", 1)
+						else if(response == "yes1"){
+							ShowMessage("Please rename the file", 1)
+						}
+						else if(response == "yes2"){
+							ShowMessage("Not enough uploads left. Max: 6 files", 1);
+						}
+						else if(response == "yes3"){
+							ShowMessage("Not enough storage space. Max: 4GB", 1);
 						}
 					});
 					
