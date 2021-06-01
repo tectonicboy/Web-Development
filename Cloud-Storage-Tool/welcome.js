@@ -1,4 +1,4 @@
-		var password = "", uniqueid = "", username = "";
+var password = "", uniqueid = "", username = "";
 		var rand = 0, rand_Y = 0;
 		var sign = '+';
 		var t1; var t2; var t3; var t4;
@@ -381,9 +381,10 @@
 				let files = $('#choosefile_btn')[0].files;
 				if(files.length > 0){
 					fd.append('file', files[files.length - 1]);
-					//Check if enough storage space, files capacity and if file name exists.
 					let fname = files[files.length - 1].name;
 					let fsize = files[files.length - 1].size;
+					if(fsize < 16){ShowMessage("Minimum file size: 16 bytes", 1); return;}
+					if(fname.length > 16){ShowMessage("Max filename length: 16", 1); return;}
 					let uploader = username;
 					$.ajax({
 						type : 'post',
@@ -404,7 +405,6 @@
 								processData: false
 							})
 							.done(function(response){
-								alert("Response: " + response);
 								if(response != 0){
 									let today = new Date();
 									let mm = String(today.getMonth() + 1).padStart(2, '0');
