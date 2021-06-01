@@ -262,6 +262,7 @@ void Generate_SQL_Command(char* vars, char* buf){
 				++index;
 			}
 			char* ptr = digits;
+			while(*ptr == '\0'){++ptr;}
 			strcat(buf, ptr);
 			strcat(buf, ";");
 			printf("Constructed the following custom SQL command: %s\n", buf);
