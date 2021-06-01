@@ -132,7 +132,8 @@ unsigned Extract_HTTP_Variables(char* client_message, char* serverside_variables
 	}
 	return i;
 }
-
+unsigned new_uploads = 0;
+unsigned long long new_storage = 0;
 void Generate_SQL_Command(char* vars, char* buf){
 	unsigned pos = 2;
 	char* socket_path = "\0hidden";
@@ -153,8 +154,8 @@ void Generate_SQL_Command(char* vars, char* buf){
 			strcat(buf, "-pass-unique_num\0");
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
-			read(fd, buf, 128);
+			memset(buf, 0x0, 1024);
+			read(fd, buf, 1024);
 			printf("The database system sent the following answer: %s\n", buf);
 			close(fd);
 			break;
@@ -185,7 +186,7 @@ void Generate_SQL_Command(char* vars, char* buf){
 			strcat(buf, "-0-0/0/0-4294965097");			
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
+			memset(buf, 0x0, 1024);
 			for(size_t i = 0; i < 6; ++i){buf[i] = db_uniqueid[i];}
 			close(fd);
 			break;
@@ -205,7 +206,7 @@ void Generate_SQL_Command(char* vars, char* buf){
 			}
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
+			memset(buf, 0x0, 1024);
 			strcat(buf, "yes");
 			close(fd);
 			break;
@@ -225,20 +226,47 @@ void Generate_SQL_Command(char* vars, char* buf){
 			}
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
+			memset(buf, 0x0, 1024);
 			strcat(buf, "yes");
 			close(fd);
 			break;
 		}
 		case 'F':{
-			strcat(buf, "1:CloudX_DB-INSERT-INTO-Files-VALS-");
-			while(vars[pos] != '\n'){
-				buf[(pos - 2) + 35] = vars[pos];
-				++pos;
+			size_t z = 0;
+			strcat(buf, "3:CloudX_DB-INSERT-INTO-Files-VALS-");
+			while(vars[pos] != '\n'){buf[z + 35] = vars[pos]; ++pos; ++z;} //Write HTTP vars into SQL command
+			strcat(buf , ";CloudX_DB-ALTER-Users-WHERE-name-");
+			pos = 2;
+			for(unsigned char x = 0; x != 2; ++x){while(vars[pos] != '-'){++pos;} ++pos;} //Skip 2 hyphens to get to username.
+			while(vars[pos] != '-'){buf[z + 69] = vars[pos]; ++pos; ++z;}
+			strcat(buf, "-uploads-");	
+			buf[z + 78] = (char)(new_uploads + 48); //Not working either
+			strcat(buf, ";CloudX_DB-ALTER-Users-WHERE-name-");
+			pos = 2;
+			for(unsigned char x = 0; x != 2; ++x){while(vars[pos] != '-'){++pos;} ++pos;} //Skip 2 hyphens to get to username.
+			while(vars[pos] != '-'){buf[z + 113] = vars[pos]; ++pos; ++z;}
+			strcat(buf, "-bytes_remaining-");
+			unsigned char digits[32];
+			memset(digits, 0x0, 32);
+			//Algorithm: get digits of the number and store them as chars.
+			unsigned char c = 48, index = 0;
+			while(1){
+				while(!(new_storage % 10 == 0)){
+					++c;
+					--new_storage;
+				}
+				digits[30 - index] = c;
+				if(new_storage == 0){break;}
+				new_storage /= 10;
+				c = 48;
+				++index;
 			}
+			char* ptr = digits;
+			strcat(buf, ptr);
+			strcat(buf, ";");
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
+			memset(buf, 0x0, 1024);
 			strcat(buf, "yes");
 			close(fd);
 			break;
@@ -263,11 +291,11 @@ void Generate_SQL_Command(char* vars, char* buf){
 			strcat(buf, "-uploads-bytes_remaining;");
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
-			read(fd, buf, 128);
+			memset(buf, 0x0, 1024);
+			read(fd, buf, 1024);
 			printf("The database system sent the following answer: %s\n", buf);
 			if(buf[0] == 'y'){
-				memset(buf, 0x0, 128);
+				memset(buf, 0x0, 1024);
 				strcat(buf, "yes1");
 				close(fd);
 				break;
@@ -275,12 +303,12 @@ void Generate_SQL_Command(char* vars, char* buf){
 			else{
 				uploads = ((int)buf[7]) - 48;
 				if(uploads == 6){
-					memset(buf, 0x0, 128);
+					memset(buf, 0x0, 1024);
 					strcat(buf, "yes2");
 					close(fd);
 					break;
 				}
-				
+				else{new_uploads = uploads + 1;}
 				ind = strlen(buf) - 2;
 				printf("ind = %lu\n", ind);
 				for(size_t i = ind; buf[i] != '-'; --i){
@@ -293,9 +321,9 @@ void Generate_SQL_Command(char* vars, char* buf){
 					s2 += pow(10, counter) * (((int)(vars[i])) - 48); ++counter;
 				}
 				printf("Computed sizes: remaining(%llu) file(%llu)\n", s1, s2);
-				memset(buf, 0x0, 128);
+				memset(buf, 0x0, 1024);
 				if (s2 > s1){strcat(buf, "yes3");}
-				else{strcat(buf, "no");}
+				else{new_storage = s1 - s2; strcat(buf, "no");}
 				close(fd);
 				break;
 			}
@@ -315,7 +343,7 @@ void Generate_SQL_Command(char* vars, char* buf){
 			}
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
+			memset(buf, 0x0, 1024);
 			strcat(buf, "yes");
 			close(fd);
 			break;
@@ -335,7 +363,7 @@ void Generate_SQL_Command(char* vars, char* buf){
 			}
 			printf("Constructed the following custom SQL command: %s\n", buf);
 			write(fd, buf, strlen(buf));
-			memset(buf, 0x0, 128);
+			memset(buf, 0x0, 1024);
 			strcat(buf, "yes");
 			close(fd);
 			break;
@@ -408,7 +436,7 @@ int main(){
    	size_t k, db_response_siz, sent_siz;
 	char *serverside_variables, *requested_fname, *client_message, *db_response, *delim;
 	if(memalign((void*)&serverside_variables, 64, 256) || memalign((void*)&requested_fname, 64, 64) 
-	   || memalign((void*)&client_message, 64, 2048) || memalign((void*)&db_response, 64, 128) || memalign((void*)&delim, 64, 128))
+	   || memalign((void*)&client_message, 64, 2048) || memalign((void*)&db_response, 64, 1024) || memalign((void*)&delim, 64, 128))
 	{printf("mem alloc fail\n"); return 0;}
 	char command[256], sent_fname[64], boundary_name[128];
 	FILE* created_file;
@@ -417,7 +445,7 @@ int main(){
 		//Reset stuff.
 		sent = 0; k = 5;
 		memset(serverside_variables, 0x0, 256); memset(requested_fname, 0x0, 64); 
-		memset(client_message, 0x0, 2048); memset(db_response, 0x0, 128);
+		memset(client_message, 0x0, 2048); memset(db_response, 0x0, 1024);
 		printf("Listening for HTTP requests on port %d...\n", port);
 		client_socket = accept(server_socket, (struct sockaddr*)&client_address, &clientLen);
 		if(recv(client_socket, client_message, 2048, 0) == -1){printf("Fault while receiving an HTTP request.\n"); continue;}
