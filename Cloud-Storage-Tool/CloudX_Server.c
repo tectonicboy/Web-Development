@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/un.h>
+#include <sys/ioctl.h>
 #include <netinet/in.h>
 
 #define memalign posix_memalign
@@ -16,16 +17,18 @@
 	TYPE* NAME; \
 	if(posix_memalign((void*)&NAME, 64, COUNT*sizeof(TYPE))){printf("aligned mem err\n"); return 0;}
 
-#define TIME_SECOND 1000000
 #define SITE_FILES 13
+#define MAX_FSIZ 4294970000
 
-unsigned short find_substr(char* str, char* substr, unsigned short pos){
-	unsigned short smallsiz = (unsigned short)strlen(substr);
-	printf("Entered find_substr with substr %s at pos %u\n", substr, pos);
+unsigned long long find_substr(char* str, char* substr, unsigned long long pos, unsigned long long max_index, size_t big_size){
+	unsigned long long smallsiz = (unsigned long long)strlen(substr);
+	printf("Entered find_substr with substr %s at pos %llu\n", substr, pos);
 	char flags = 0b00000000;
-	for(unsigned short i = pos; i < 2048 - smallsiz; ++i){
+	unsigned long long siz1 = (max_index - smallsiz), siz2 = (big_size - smallsiz);
+	for(unsigned long long i = pos; i <= siz1 && i < siz2; ++i){
+		//printf("INSPECTING: %d\t%c\n", (int)str[i], str[i]);
 		flags |= 0b00000001;
-		for(short j = 0U; j < smallsiz; ++j){
+		for(unsigned long long j = 0; j < smallsiz; ++j){
 			if(str[i+j] != substr[j]){
 				flags &= ~0b00000001; 
 				break;
@@ -33,8 +36,8 @@ unsigned short find_substr(char* str, char* substr, unsigned short pos){
 		}
 		if(flags & 0b00000001){return i;}
 	}	
-	printf("About to return 2048\n");
-	return 2048;
+	printf("About to return max_index\n");
+	return max_index;
 }
 
 long long hexdec(char first, char second){
@@ -240,7 +243,7 @@ void Generate_SQL_Command(char* vars, char* buf){
 			for(unsigned char x = 0; x != 2; ++x){while(vars[pos] != '-'){++pos;} ++pos;} //Skip 2 hyphens to get to username.
 			while(vars[pos] != '-'){buf[z + 69] = vars[pos]; ++pos; ++z;}
 			strcat(buf, "-uploads-");	
-			buf[z + 78] = (char)(new_uploads + 48); //Not working either
+			buf[z + 78] = (char)(new_uploads + 48);
 			strcat(buf, ";CloudX_DB-ALTER-Users-WHERE-name-");
 			pos = 2;
 			for(unsigned char x = 0; x != 2; ++x){while(vars[pos] != '-'){++pos;} ++pos;} //Skip 2 hyphens to get to username.
@@ -428,15 +431,16 @@ int main(){
 	listen(server_socket, 16);
 
 	//Declarations for serving loop
-	unsigned servervars_start_i;
-	short pos = 0U;
+	unsigned servervars_start_i, bytes_from_small;
+	unsigned long long pos = 0;
 	struct sockaddr_in client_address;
     	int client_socket, sent;
 	socklen_t clientLen = sizeof(struct sockaddr_in);
     	u_int32_t imageResponseLen;
-   	size_t k, db_response_siz, sent_siz;
-	char *serverside_variables, *requested_fname, *client_message, *db_response, *delim;
-	if(memalign((void*)&serverside_variables, 64, 256) || memalign((void*)&requested_fname, 64, 64) 
+   	size_t k, db_response_siz;
+	unsigned long long bytes_read, total_read;
+	char *serverside_variables, *requested_fname, *client_message, *db_response, *delim, *file_contents, *file_response;
+	if(memalign((void*)&serverside_variables, 64, 256) || memalign((void*)&requested_fname, 64, 64) || memalign((void*)&file_contents, 64, MAX_FSIZ)
 	   || memalign((void*)&client_message, 64, 2048) || memalign((void*)&db_response, 64, 1024) || memalign((void*)&delim, 64, 128))
 	{printf("mem alloc fail\n"); return 0;}
 	char command[256], sent_fname[64], boundary_name[128];
@@ -447,71 +451,106 @@ int main(){
 		sent = 0; k = 5;
 		memset(serverside_variables, 0x0, 256); memset(requested_fname, 0x0, 64); 
 		memset(client_message, 0x0, 2048); memset(db_response, 0x0, 1024);
+		memset(delim, 0x0, 128); memset(boundary_name, 0x0, 128);
 		printf("Listening for HTTP requests on port %d...\n", port);
 		client_socket = accept(server_socket, (struct sockaddr*)&client_address, &clientLen);
-		if(recv(client_socket, client_message, 2048, 0) == -1){printf("Fault while receiving an HTTP request.\n"); continue;}
-		printf("Received an HTTP request of size %lu\n\n%s", strlen(client_message), client_message);
+		if((bytes_read = recv(client_socket, client_message, 2048, MSG_PEEK)) == -1){printf("Fault while receiving first 2048 bytes of HTTP request.\n"); goto label2;}
+		printf("Received an HTTP request. Read first 2048 bytes: %lu\n\n%s", strlen(client_message), client_message);
 		//Extract requested file's name if there's one.
-		while(!(client_message[k+1] == 72 && client_message[k+2] == 84 && client_message[k+3] == 84 && client_message[k+4] == 80)){
-			requested_fname[k-5] = client_message[k];
-			++k;
-			if(k > 64){break;}
+		if(client_message[0] == 'G'){
+			while(!(client_message[k+1] == 72 && client_message[k+2] == 84 && client_message[k+3] == 84 && client_message[k+4] == 80)){
+				requested_fname[k-5] = client_message[k];
+				++k;
+				if(k > 64){break;}
+			}
+			if(*requested_fname){
+				printf("\nThe client requested a file called: %s\n", requested_fname);
+				for(size_t i = 1; i < SITE_FILES; ++i){
+					if(!strcmp(site_files[i]->fname, requested_fname)){
+						if(send(client_socket, site_files[i]->fbuf, site_files[i]->fsize, 0) < 0){printf("file send fail\n");}
+						else{printf("Sent file %s to the client successfully!\n", site_files[i]->fname); sent = 1;}					
+					}
+				} 
+			}
 		}
-		if(*requested_fname){
-			printf("\nThe client requested a file called: %s\n", requested_fname);
-			for(size_t i = 1; i < SITE_FILES; ++i){
-				if(!strcmp(site_files[i]->fname, requested_fname)){
-					if(send(client_socket, site_files[i]->fbuf, site_files[i]->fsize, 0) < 0){printf("file send fail\n");}
-					else{printf("Sent file %s to the client successfully!\n", site_files[i]->fname); sent = 1;}					
-				}
-			} 
-			
-		}
-		printf("After dealing with requested file name, sent = %d\n", sent);
-
-		servervars_start_i = Extract_HTTP_Variables(client_message, serverside_variables);
-		if(servervars_start_i < 2048){
-			Generate_SQL_Command(serverside_variables, db_response);
-			db_response_siz = strlen(db_response);
-			printf("About to send back the following string: %s\n", db_response);
-			if(send(client_socket, db_response, db_response_siz, 0) < 0){printf("db response send fail\n");}
-			else{printf("Sent db response successfully.\n"); sent = 1;}
-		}
-		//Receiving a user file to be stored.
 		else{
-			pos = 0; sent_siz = 0;
-			memset(boundary_name, 0x0, 128);
-			pos = find_substr(client_message, "boundary=", pos); //Go to where boundary name starts
-			if(pos == 2048){goto label2;} //Replace with sizeof buffer as per required later;
-			pos += 9;
-			for(short i = 0U; client_message[pos] != '\r'; ++i){ // Get boundary name
-				boundary_name[i] = client_message[pos];
-				++pos;
+			servervars_start_i = Extract_HTTP_Variables(client_message, serverside_variables);
+			if(servervars_start_i < 2047){
+				Generate_SQL_Command(serverside_variables, db_response);
+				db_response_siz = strlen(db_response);
+				printf("About to send back the following string: %s\n", db_response);
+				if(send(client_socket, db_response, db_response_siz, 0) < 0){printf("db response send fail\n");}
+				else{printf("Sent db response successfully.\n"); sent = 1;}
 			}
-			printf("Extracted boundary name:%s\n", boundary_name);
-			pos = find_substr(client_message, "filename=", pos); pos += 10; //Go to where sent file's name starts
-			memset(sent_fname, 0x0, 64);
-			for(short i = 0U; client_message[pos] != '"'; ++i){ //Get file name
-				sent_fname[i] = client_message[pos];
-				printf("HERE5\n");
-				++pos;
+			else{
+				//sending a file here.
+				//sleep();
+				bytes_read = 0; total_read = 0;
+				sleep(1);
+				if((bytes_read = recv(client_socket, file_contents, MAX_FSIZ, 0)) > 0){printf("***************\t FIRST READ: %llu\t **************\n", bytes_read);}
+				pos = 0;
+				memset(boundary_name, 0x0, 128);
+				if((pos = find_substr(file_contents, "boundary=", pos, 1024, MAX_FSIZ)) == 1023){printf("Server error: boundary= string not found.\n"); goto label3;} 
+				pos += 9; //Go to where boundary name starts
+				for(short i = 0U; file_contents[pos] != '\r'; ++i){ // Get boundary name
+					boundary_name[i] = file_contents[pos];
+					++pos;
+				}
+				printf("Extracted boundary string:%s\n", boundary_name);
+				if((pos = find_substr(file_contents, "filename=", pos, 2047, MAX_FSIZ)) > 1024){printf("Server error: filename= string not found.\n"); goto label3;} 
+				pos += 10; //Go to where sent file's name starts
+				memset(sent_fname, 0x0, 64);
+				for(short i = 0U; file_contents[pos] != '"'; ++i){ //Get file name
+					sent_fname[i] = file_contents[pos];
+					++pos;
+				}
+				if(*sent_fname){
+					memset(command, 0x0, 256);
+					snprintf(command, 256, "touch %s; chmod +rw %s", sent_fname, sent_fname); //Create the file on the system
+					system(command);
+				}
+				else{printf("Server error: No filename detected."); goto label3;}
+				created_file = fopen(sent_fname, "wb"); //Open for writing binary data to it
+				printf("Generated the following terminal command:%s\n", command);
+				snprintf(delim, 256, "\r\n--%s--", boundary_name);
+				printf("Ending delimiter we'll be finding is:%s\n", delim);
+				pos = find_substr(file_contents, "\r\n\r\n", pos, 2047, MAX_FSIZ); pos += 4;
+				printf("Found the position at which file contents begin: %llu\n", pos);
+				unsigned long long end_pos = find_substr(file_contents, delim, pos, bytes_read, MAX_FSIZ);
+				printf("FIRST SEARCH RESULTS: bytes_read = %llu\tend_pos = %llu\n", bytes_read, end_pos);
+				if(end_pos < bytes_read){
+					printf("Skipping additional recv()'s cuz we found ending delim.\n");
+					bytes_read = end_pos - pos;
+					goto label4;
+				}
+				else{
+					total_read = bytes_read - pos;
+
+					while((bytes_read = recv(client_socket, file_contents + total_read, MAX_FSIZ, 0)) > 0){
+						printf("\n***************\t READ: %llu\t **************\n\n", bytes_read);
+						total_read += bytes_read;
+						if(find_substr(file_contents, delim, pos + (total_read - bytes_read) - 128, total_read, MAX_FSIZ) != total_read){
+							bytes_read = total_read - strlen(delim);
+							goto label4;	
+						}
+						sleep(1);
+					}
+				}
+				label4:
+				created_file = fopen(sent_fname, "wb");
+				printf("Size of sent file: %llu\n", bytes_read);
+				const void* mem_pos = (void*)&file_contents[pos];
+				fwrite(mem_pos, 1, bytes_read, created_file);
+				fclose(created_file);	
+				printf("Server: file stored successfully!\n");
+				memset(file_contents, 0x0, MAX_FSIZ);
+				goto label2;
+				label3:
+				printf("Server: Could not store file.\n");
+				if(send(client_socket, "no", 2, 0) < 0){printf("file_response send error.\n");}
+				memset(file_contents, 0x0, MAX_FSIZ);
+				sent = 1; goto label2;
 			}
-			memset(command, 0x0, 256);
-			snprintf(command, 256, "touch %s; chmod +rw %s", sent_fname, sent_fname); //Create the file on the system
-			system(command);
-			created_file = fopen(sent_fname, "wb"); //Open for writing binary data to it
-			printf("Generated the following terminal command:%s\n", command);
-			snprintf(delim, 256, "\r\n--%s--", boundary_name);
-			printf("Ending delimiter we'll be finding is:%s\n", delim);
-			pos = find_substr(client_message, "\r\n\r\n", pos); pos += 4;
-			printf("Found the position at which file contents begin: %u\n", pos);
-			created_file = fopen(sent_fname, "wb");
-			unsigned long long end_pos = (unsigned long long)find_substr(client_message, delim, pos);
-			sent_siz = end_pos - pos;
-			printf("The sent file's size in bytes: %lu\n", sent_siz);
-			const void* mem_pos = (void*)&client_message[pos];
-			fwrite(mem_pos, 1, sent_siz, created_file); 
-			fclose(created_file);
 		}
 		label2:
         	if(!sent){
@@ -520,9 +559,11 @@ int main(){
 			site_files[0]->fsize = Create_HTTPsend_Filebuf(site_files[0]->fname, site_files[0]->ftype, site_files[0]->fmode, &(site_files[0]->fbuf)); 
 			if(send(client_socket, site_files[0]->fbuf, site_files[0]->fsize, 0) < 0){printf("firstpage code send fail\n");}
 		}
+		//Make sure data 
+		if((recv(client_socket, client_message, 2048, 0)) == -1){printf("Error on last read.\n");}
 		close(client_socket);
 	}	
-
+	free(serverside_variables); free(requested_fname); free(client_message); free(db_response); free(delim); free(site_files);
 
 
 	return 0;
